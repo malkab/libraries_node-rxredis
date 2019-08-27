@@ -1,0 +1,9 @@
+name: rxjs-redis
+root: /Users/git/cell-platform/rxjs-redis
+
+windows:
+        - docker-dev: cd docker/dev ; sleep 0.5 ; clear
+        - docker-redis: cd docker/dev ; sleep 0.5 ; clear
+        - docker: cd docker/dev ; sleep 0.5 ; clear
+        
+        
