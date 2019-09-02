@@ -1,6 +1,6 @@
 {
-  "name": "@malkab/rxjs-redis",
-  "version": "0.0.0",
+  "name": "@malkab/rxredis",
+  "version": "0.0.1",
   "description": "A RxJS Redis interface.",
   "scope": "@malkab",
   "author": {
@@ -60,6 +60,7 @@
     "webpack-node-externals": "^1.7.2"
   },
   "dependencies": {
+    "@malkab/ts-utils": "0.0.1",
     "hiredis": "^0.5.0",
     "redis": "^2.8.0",
     "rxjs": "^6.5.2"
