@@ -1,14 +1,14 @@
 #!/bin/bash
 
-. ../env.env
+. ./env.env
 
-# Clears the Redis cache
-    
+# Runs a development Redis cli session
+
 docker run -ti --rm \
-    --name rxjs-redis-cache-cleaner \
+    --name rxjs-redis-dev-redis-cli \
     --network container:$DEV_REDIS_CONTAINERNAME \
     -v `pwd`:/ext-src/ \
     --workdir /ext-src/ \
     --entrypoint /bin/bash \
     redis:4.0 \
-    -c "redis-cli -a redis flushall"
+    -c "redis-cli -a redis"

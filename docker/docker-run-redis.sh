@@ -1,12 +1,11 @@
 #!/bin/bash
 
-. ../env.env
+. ./env.env
 
 # Runs a Redis server
 
 docker run -ti --rm \
     --name $DEV_REDIS_CONTAINERNAME \
-    -v $(pwd)/redis-data/:/data \
     -v $(pwd):/ext-src/ \
     -v $(pwd)/config/redis.conf:/redis.conf:ro \
     --workdir /ext-src/ \

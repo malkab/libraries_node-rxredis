@@ -426,7 +426,7 @@ export class RxRedis {
 
     /**
      * 
-     * Executes a flushall command.
+     * Executes a flushall command. Returns true if everything went well.
      * 
      */
 
@@ -444,7 +444,21 @@ export class RxRedis {
                     
                     }
 
-                    o.next(result);
+                    // Final response
+
+                    let response: boolean;
+
+                    if (result === "OK") {
+
+                        response = true;
+                    
+                    } else {
+
+                        response = false;
+
+                    }
+
+                    o.next(response);
 
                     o.complete();
 
