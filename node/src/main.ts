@@ -138,10 +138,11 @@ const hash01: RxRedisHashDs = r00.getRxRedisHashDs("hashCol01");
 
 rx.concat(
 
-    r00.set$("ajson", JSON.stringify({ a: 3, b: 78 })),
-    r00.keys$("*"),
-    r00.flushall$(),
-    r00.keys$("*")
+    // r00.set$("ajson", JSON.stringify({ a: 3, b: 78 })),
+    // r00.keys$("*"),
+    // r00.flushall$(),
+    // r00.keys$("*"),
+    r00.get$("jjjj")
     // r00.get$("ajson"),
     // r00.del$("ajson"),
     // r00.set$("ajson", 99),
@@ -195,16 +196,16 @@ rx.concat(
         
         // Execute the observable logic without doing nothing extra.
 
-        hash00.hset$("h00", "aee", 323).subscribe();
+        // hash00.hset$("h00", "aee", 323).subscribe();
 
-        hash00.hgetall$("h00").subscribe(
+        // hash00.hgetall$("h00").subscribe(
 
-            (n) => console.log("h00", n)
+        //     (n) => console.log("h00", n)
 
-        )
+        // )
 
-        r00.publish("channel00", 34);
-        r00.publish("channel00", 332);
+        // r00.publish("channel00", 34);
+        // r00.publish("channel00", 332);
 
         // q00.unsubscribe();
         // q01.unsubscribe();

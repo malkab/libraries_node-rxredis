@@ -1,6 +1,6 @@
 {
   "name": "@malkab/rxredis",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "A RxJS Redis interface.",
   "scope": "@malkab",
   "author": {

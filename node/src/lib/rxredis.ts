@@ -444,21 +444,7 @@ export class RxRedis {
                     
                     }
 
-                    // Final response
-
-                    let response: boolean;
-
-                    if (result === "OK") {
-
-                        response = true;
-                    
-                    } else {
-
-                        response = false;
-
-                    }
-
-                    o.next(response);
+                    o.next(result);
 
                     o.complete();
 
