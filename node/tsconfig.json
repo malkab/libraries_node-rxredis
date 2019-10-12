@@ -2,7 +2,7 @@
     "compileOnSave": false,
     "compilerOptions": {
         "baseUrl": "./",
-        "target": "es2015",
+        "target": "es2017",
         "module": "esnext",
         "declaration": true,
         "downlevelIteration": true,
@@ -20,7 +20,7 @@
             "node_modules/@types"
           ],
           "lib": [
-            "es2018",
+            "es2017",
             "dom"
           ],
     },

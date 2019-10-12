@@ -2,9 +2,8 @@ const path = require('path');
 
 module.exports = {
   entry: {
-    main: "./src/main.ts",
-    test: "./src/test.ts",
-    mocha: "./src/mocha.ts"
+    mocha: "./src/test/main.test.ts",
+    quicktest: "./src/test/00-quick-test.ts"
   },
   mode: "development",
   watch: true,

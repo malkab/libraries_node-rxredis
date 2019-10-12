@@ -390,21 +390,33 @@ export class RxRedis {
 
     /**
      * 
-     * Deletes a key.
+     * Deletes keys passed as ... params.
+     * 
+     * Examples:
+     * 
+     * ```TypeScript
+     * del$(key0, key1, key2);
+     * 
+     * del$(...[key0, key1]);
+     * ```
+     * 
+     * @param keys          A ... param of keys to delete.
+     * @returns             An integer with the number of keys deleted
+     *                      if everything went well.
      * 
      */
 
-    public del$(key: string): rx.Observable<number> {
+    public del$(...keys: string[]): rx.Observable<number> {
 
         return new rx.Observable<number>((o: any) => {
 
-            this._client.del(key,
+            this._client.del(keys,
                 
                 (error, value) => {
 
                     if (error) { 
                         
-                        o.error(new Error(`RxRedis error: error deleting key ${key}: ${error}`));
+                        o.error(new Error(`RxRedis error: error deleting keys ${keys}: ${error}`));
                         
                         o.complete();
                     

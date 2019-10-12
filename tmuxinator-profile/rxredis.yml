@@ -1,7 +1,8 @@
 name: rxredis
-root: /Users/git/cell-platform/rxredis
+root: /Users/git/malkab-rx/rxredis
 
 windows:
-        - docker-dev: cd docker ; sleep 0.5 ; clear
-        - docker-redis: cd docker ; sleep 0.5 ; clear ; ./docker-run-redis.sh
+        - node-dev: cd docker ; sleep 1.5 ; clear ; ./docker-node-run-interactive.sh
+        - redis-cli: cd docker ; sleep 1.5 ; clear ; ./docker-redis-cli.sh
+        - redis: cd docker ; sleep 0.5 ; clear ; ./docker-redis-run.sh
         
