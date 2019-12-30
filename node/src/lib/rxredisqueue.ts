@@ -6,7 +6,32 @@ import * as rx from "rxjs";
 
 /**
  * 
- * This class manages a potentially blocking BRPOP command.
+ * This class manages a potentially blocking BRPOP command, used to
+ * implement message queues.
+ * 
+ * Implementing the listener for the messages is really straighforward:
+ * 
+ * ```TypeScript
+ * const queue: RxRedisQueue = new RxRedisQueue("redis-password", "redis://redis");
+ * 
+ * // Error handling
+ * queue.redisError$
+ * .subscribe((error: any) => {
+ * 
+ *    console.log("D: error at Redis queue", error);
+ * 
+ * });
+ * 
+ * queue.subscribe$(["queue00", "queue01"])
+ * .subscribe((message: any) => {
+ *    
+ *    console.log("D: message", message);
+ * 
+ * });
+ * ```
+ * 
+ * The program will wait performing a BRPOP until a message hits any of
+ * the given queues.
  * 
  */
 
