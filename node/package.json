@@ -1,6 +1,6 @@
 {
   "name": "@malkab/rxredis",
-  "version": "0.0.4",
+  "version": "1.0.0",
   "description": "A RxJS Redis interface.",
   "scope": "@malkab",
   "author": {
@@ -30,7 +30,7 @@
     "service:build-lib": "webpack --config webpack-production.config.js --progress --colors",
     "service:build": "webpack --progress --colors",
     "service:watch:quick-test:server": "nodemon --inspect=0.0.0.0:9329 \"./build/quicktest.js\" --watch \"./build/quicktest.js\"",
-    "service:watch:mocha:server": "nodemon --ext js --watch ./build/mocha.js --exec 'mocha --timeout 20000 ./build/mocha.js || true'",
+    "service:watch:mocha:server": "nodemon --ext js --watch ./build/mocha.js --exec 'mocha --timeout 200000 ./build/mocha.js || true'",
     "service:builddocs:html": "cd typedoc ; ./html.sh ; cd ..",
     "service:builddocs:markdown": "cd typedoc ; ./markdown.sh ; cd ..",
     "service:builddocs": "npm run builddocs:html ; npm run builddocs:markdown"

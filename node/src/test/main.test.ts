@@ -10,6 +10,6 @@ Mocha testing
 
 // Add test suites here
 
-import "./tests/get.test";
+import "./tests/rxredis.test";
 
-import "./tests/del.test";
+import "./tests/rxredisqueue.test";

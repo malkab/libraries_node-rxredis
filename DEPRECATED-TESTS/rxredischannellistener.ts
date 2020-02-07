@@ -1,4 +1,4 @@
-import * as rxredis from "./rxredis";
+import * as rxredis from "../node/src/lib/rxredis";
 
 import * as rx from "rxjs";
 

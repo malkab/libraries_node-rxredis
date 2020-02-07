@@ -13,7 +13,7 @@
 # Usually this container needs a name for others to connect to it
 REDIS_CONTAINER_NAME=rxredis-redis
 # The version of Redis to run
-REDIS_VERSION=4.0
+REDIS_VERSION=5.0
 
 
 

@@ -8,8 +8,6 @@ import * as _ from "lodash";
 
 import { RxRedisQueue } from "./rxredisqueue";
 
-import { RxRedisChannelListener } from "./rxredischannellistener";
-
 import { RxRedisHashDs } from "./rxredishashds";
 
 
@@ -21,16 +19,6 @@ import { RxRedisHashDs } from "./rxredishashds";
  */
 
 export class RxRedis {
-
-    /**
-     * 
-     * Error subject.
-     * 
-     */
-
-    public redisError$: rx.Subject<Error> = new rx.Subject<Error>();
-
-
 
     /**
      * 
@@ -100,6 +88,27 @@ export class RxRedis {
 
     /**
      *
+     * Returns the connection details.
+     *  
+     */
+
+    get connectionParams() {
+
+      return {
+
+        password: this._pass,
+        allowBlocking: this._allowBlocking,
+        url: this._url,
+        port: this._port,
+        db: this._db
+
+      }
+    }
+
+
+
+    /**
+     *
      * Constructor.
      * 
      * allowBlockign by default.
@@ -107,34 +116,50 @@ export class RxRedis {
      */
     
     constructor(
-        password: string,
-        allowBlocking: boolean = true,
-        url: string = "redis://localhost", 
-        port: number = 6379,
-        db: number = 0
+      {
+        password = "redis",
+        allowBlocking = true,
+        url = "redis://localhost",
+        port = 6379,
+        db = 0
+      }:
+      {
+        password?: string,
+        allowBlocking?: boolean,
+        url?: string, 
+        port?: number,
+        db?: number
+      }
     ) {
 
-        this._url = url;
-        this._pass = password;
-        this._port = port;
-        this._db = db;
-        this._allowBlocking = allowBlocking;
+      this._url = url;
+      this._pass = password;
+      this._port = port;
+      this._db = db;
+      this._allowBlocking = allowBlocking;
 
-        this._client = redis.createClient(this._url, 
-            { 
-                password: this._pass, 
-                db: this._db, 
-                port: this._port 
-            }
-        );
+      const connectionParams: any = {
 
-        // Publish the error
+        db: db,
+        port: port
 
-        this._client.on("error", (err: Error) => {
-            
-            this.redisError$.error(err);
+      };
 
-        });
+      if (password) {
+
+        connectionParams.password = password
+
+      }
+
+      this._client = redis.createClient(this._url, connectionParams);
+
+      // Publish the error
+
+      this._client.on("error", (err: Error) => {
+          
+        throw err;
+
+      });
 
     }
 
@@ -162,31 +187,110 @@ export class RxRedis {
 
     public set$(key: string, value: any): rx.Observable<string> {
 
-        return new rx.Observable<string>((o: any) => {
+      return new rx.Observable<string>((o: any) => {
 
-            this._client.set(key, value,
-            
-                (error, result) => {
+        this._client.set(key, value,
+        
+          (error, result) => {
 
-                    if (error) { 
-                        
-                        o.error(new Error(`RxRedis error: error setting key ${key} to ${value}: ${error}`));
-                        
-                        o.complete();
-                    
-                    }
-
-                    o.next(value);
-
-                    o.complete();
-
-                }
+            if (error) { 
                 
-            );
+                o.error(new Error(`RxRedis error: error setting key ${key} to ${value}: ${error}`));
+                
+                o.complete();
+            
+            }
 
-        });
+            o.next(value);
+
+            o.complete();
+
+          }
+            
+        );
+
+      });
 
     }
+
+
+
+  /**
+   * 
+   * LLEN: returns the lenght of a list.
+   * 
+   * @param key         The key of the list.
+   * @returns           An Observable with the result.
+   * 
+   */
+
+  public llen$(key: string): rx.Observable<number> {
+
+    return new rx.Observable<number>((o: any) => {
+
+      this._client.llen(key, 
+      
+        (error, result) => {
+
+          if (error) {
+
+            o.error(new Error(`RxRedis error: error llen ${key}: ${error}`));
+
+            o.complete();
+
+          }
+
+          o.next(result);
+
+          o.complete();
+
+        }
+        
+      );
+
+    })
+  
+  }
+
+
+
+  /**
+   * 
+   * LPOP: left pops a value from a list.
+   * 
+   * @param key         The key of the list.
+   * @returns           An Observable with the result.
+   * 
+   */
+
+  public lpop$(key: string): rx.Observable<any> {
+
+    return new rx.Observable<any>((o: any) => {
+
+      this._client.lpop(key, 
+      
+        (error, result) => {
+
+          if (error) {
+
+            o.error(new Error(`RxRedis error: error lpop ${key}: ${error}`));
+
+            o.complete();
+
+          }
+
+          o.next(result);
+
+          o.complete();
+
+        }
+        
+      );
+
+    })
+  
+  }
+
 
 
     /**
@@ -295,6 +399,72 @@ export class RxRedis {
     
 
 
+
+  /*
+
+      Waits for a BLPOP
+
+      key: the list(s) to BLPOP
+      timeout: optional, defaults to 0
+
+  */
+
+  public blpop$(
+    keys: string[],  
+    timeout: number = 0
+  ): rx.Observable<any> {
+
+    if (this._allowBlocking) {
+
+      return new rx.Observable<any>((o: any) => {
+
+        const params: any[] = _.cloneDeep(keys);
+
+        // Add the timeout to the keys
+
+        params.concat(keys);
+
+        params.push(timeout);
+
+        // Run the brpop
+
+        this._client.blpop(params,
+
+          (error, value) => {
+
+            if (error) {
+
+              o.error(new Error(`RxRedis error: error brpop at queues ${keys} with timeout ${timeout}: ${error}`));
+
+              o.complete();
+
+            }
+
+            o.next(value);
+
+            o.complete();
+
+          }
+
+        );
+
+        return () => {};
+
+      });
+
+    } else {
+
+      throw this._blockingError("brpop");
+
+    }
+
+  }
+
+
+
+
+
+
     /*
 
         Waits for a BRPOP
@@ -384,6 +554,40 @@ export class RxRedis {
 
 
 
+  public rpush$(key: string, value: any | any[]): rx.Observable<number> {
+
+    return new rx.Observable<number>((o: any) => {
+
+        this._client.rpush(key, value,
+
+            (error, result) => {
+
+                if (error) {
+
+                    o.error(new Error(`RxRedis error: error rpush value ${value} at ${key}: ${error}`));
+                    
+                    o.complete();
+
+                }
+
+                o.next(result);
+
+                o.complete();
+
+            }
+            
+        );
+
+        return () => {};
+
+    });
+
+}
+
+
+
+
+
 
 
 
@@ -444,27 +648,25 @@ export class RxRedis {
 
     public flushall$(): rx.Observable<boolean> {
 
-        return new rx.Observable<boolean>((o: any) => {
+      return new rx.Observable<boolean>((o: any) => {
 
-            this._client.flushall((error, result) => {
+        this._client.flushall((error, result) => {
 
-                    if (error) { 
-                        
-                        o.error(new Error(`RxRedis error: error flushall: ${error}`));
-                        
-                        o.complete();
-                    
-                    }
+          if (error) { 
+            
+            o.error(new Error(`RxRedis error: error flushall: ${error}`));
+            
+            o.complete();
+          
+          }
 
-                    o.next(result);
+            o.next(result);
 
-                    o.complete();
-
-                }
-                
-            );
+            o.complete();
 
         });
+
+      });
 
     }
 
@@ -950,26 +1152,25 @@ export class RxRedis {
 
     public getRxRedisQueue(): RxRedisQueue {
 
-        return new RxRedisQueue(this._pass, this._url, 
-            this._port, this._db);
+        return new RxRedisQueue(this);
         
     }
 
 
 
-    /**
-     * 
-     * Returns a RxRedisChannelListener taking connection parameters of
-     * this RxRedis.
-     * 
-     */
+    // /**
+    //  * 
+    //  * Returns a RxRedisChannelListener taking connection parameters of
+    //  * this RxRedis.
+    //  * 
+    //  */
 
-    public getRxRedisChannelListener(): RxRedisChannelListener {
+    // public getRxRedisChannelListener(): RxRedisChannelListener {
 
-        return new RxRedisChannelListener(this._pass, this._url, 
-            this._port, this._db);
+    //     return new RxRedisChannelListener(this._pass, this._url, 
+    //         this._port, this._db);
         
-    }
+    // }
 
 
 

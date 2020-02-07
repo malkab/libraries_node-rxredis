@@ -1,6 +1,8 @@
-import * as rxredis from "./rxredis";
+import { RxRedis } from "./rxredis";
 
 import * as rx from "rxjs";
+
+import * as rxo from "rxjs/operators";
 
 
 
@@ -9,242 +11,267 @@ import * as rx from "rxjs";
  * This class manages a potentially blocking BRPOP command, used to
  * implement message queues.
  * 
- * Implementing the listener for the messages is really straighforward:
+ * To use, just:
  * 
  * ```TypeScript
- * const queue: RxRedisQueue = new RxRedisQueue("redis-password", "redis://redis");
  * 
- * // Error handling
- * queue.redisError$
- * .subscribe((error: any) => {
+ * const r: RxRedis = new RxRedis({});
  * 
- *    console.log("D: error at Redis queue", error);
+ * const q: RxRedisQueue = r.getRxRedisQueue();
  * 
- * });
+ * q.rget$([ "t", "q" ], [ Number of results to get])
+ * .subscribe();
  * 
- * queue.subscribe$(["queue00", "queue01"])
- * .subscribe((message: any) => {
- *    
- *    console.log("D: message", message);
+ * q.close();
  * 
- * });
+ * r.close();
  * ```
  * 
- * The program will wait performing a BRPOP until a message hits any of
- * the given queues.
+ * where the [ Number of results to get ] is optional for a never-ending
+ * event loop.
+ * 
+ * Don't forget to close() if applicable because it can potentially 
+ * lead to dead connections to the Redis and memory leaks.
  * 
  */
 
 export class RxRedisQueue {
 
-    /**
-     * 
-     * Error subject.
-     * 
-     */
+  /**
+   * 
+   * The Redis client pool. This is created because multiple blocking
+   * operations can be launched at the same time. Don't forget to close
+   * this object.
+   * 
+   */
 
-    public redisError$: rx.Subject<Error> = new rx.Subject<Error>();
-
-
-
-    /**
-     * 
-     * Close flag. If set, next loop iteration tries to close the 
-     * connection.
-     * 
-     */
-
-    private _close: boolean = false;
+  private _client: RxRedis[] = [];
 
 
 
-    /**
-     * 
-     * The Redis client.
-     * 
-     */
+  /**
+   * 
+   * The base connection.
+   * 
+   */
 
-    private _client: rxredis.RxRedis;
+  private _redisConnection: RxRedis;
 
 
 
-    /**
-     * 
-     * The Redis instance URL.
-     */
+  /**
+   *
+   * Constructor.
+   *
+   */
+  
+  constructor(redisConnection: RxRedis) {
+
+    this._redisConnection = redisConnection;
+
+  }
+
+
+
+  /**
+   * 
+   * Publish to the queue.
+   * 
+   * @param keys 
+   * 
+   * @param timeout 
+   */
+
+  public lset$(queueName: string, message: any): rx.Observable<any> {
+
+    return this._redisConnection.lpush$(queueName, message);
+
+  }
+
+
+
+  /**
+   * 
+   * Publish to the queue.
+   * 
+   * @param keys 
+   * 
+   * @param timeout 
+   */
+
+  public rset$(queueName: string, message: any): rx.Observable<any> {
+
+    return this._redisConnection.rpush$(queueName, message);
+
+  }
+
+
+
+  /**
+   * 
+   * Starts a never ending brpop loop.
+   * 
+   * **REMEMBER:** This method **BLOCKS** the connection. Use a
+   * completely dedicated RxRedis instance to use it.
+   * 
+   * @param keys              The list of keys to pop from.
+   * @param timeout           Optional. The timeout, defaults to 0
+   *                          (waiting forever).
+   * 
+   */
+
+  public rget$(
+      keys: string | string[],
+      numberOfItems: number = null,
+      timeout: number = 0
+  ): rx.Observable<any> {
+
+    const k: string[] = Array.isArray(keys) ? keys : [ keys ];
+
+    // Create the client and push it to the client array to close 
+    // all of them (MEMORY LEAKS AHEAD)
+
+    const _c: RxRedis = new RxRedis(
+
+      this._redisConnection.connectionParams
     
-    private _url: string;
+    );
 
+    this._client.push(_c);
 
+    // Create the observable
 
-    /**
-     * 
-     * The Redis instance port.
-     * 
-     */
-    
-    private _port: number;
-
-
-
-    /**
-     * 
-     * The Redis instance password.
-     * 
-     */
-
-    private _pass: string;
-
-
-
-    /**
-     * 
-     * The Redis instance database. Defaults to 0.
-     * 
-     */
-
-    private _db: number;
-
-
-
-    /**
-     *
-     * Constructor.
-     *
-     */
-    
-    constructor(
-        password: string,
-        url?: string, 
-        port?: number,
-        db?: number
-    ) {
-
-        this._url = url ? url : "redis://localhost";
-        this._pass = password;
-        this._port = port ? port : 6379;
-        this._db = db ? db : 0;
-
-    }
-
-
-
-
-    /**
-     * 
-     * Starts a never ending brpop loop.
-     * 
-     * **REMEMBER:** This method **BLOCKS** the connection. Use a
-     * completely dedicated RxRedis instance to use it.
-     * 
-     * @param keys              The list of keys to pop from.
-     * @param timeout           Optional. The timeout, defaults to 0
-     *                          (waiting forever).
-     * 
-     */
-
-    public subscribe$(
-        keys: string[], 
-        timeout?: number
-    ): rx.Subject<any> {
-        
-        timeout = timeout ? timeout : 10;
-
-        // Create the client
-
-        this._client = new rxredis.RxRedis(
-            this._pass,
-            true,
-            this._url,
-            this._port,
-            this._db
-        );
-
-        this._client.redisError$
+    return new rx.Observable<any>(
+      
+      (observer: any) => {
+  
+        _c.brpop$(k, timeout)
+        .pipe(rxo.repeat(numberOfItems))
         .subscribe(
 
-            (nextError) => this.redisError$.next(nextError),
+          (n: any) => {
+            
+            observer.next(n);
 
-            (error) => this.redisError$.error(error),
+          }, 
+              
+          // Intercepting an error here will make the
+          // unsubscribe method to always throw an uncatchable
+          // error here
 
-            () => {}
+          (error: Error) => {
 
+            throw error; 
+          
+          },
+              
+          () => { 
+
+            observer.complete();
+
+          }
+                
+        );
+  
+      }
+
+    )
+
+  }
+
+
+
+
+  /**
+   * 
+   * Starts a never ending brpop loop.
+   * 
+   * **REMEMBER:** This method **BLOCKS** the connection. Use a
+   * completely dedicated RxRedis instance to use it.
+   * 
+   * @param keys              The list of keys to pop from.
+   * @param timeout           Optional. The timeout, defaults to 0
+   *                          (waiting forever).
+   * 
+   */
+
+  public lget$(
+    keys: string | string[],
+    numberOfItems: number = null,
+    timeout: number = 0
+  ): rx.Observable<any> {
+
+    const k: string[] = Array.isArray(keys) ? keys : [ keys ];
+
+    // Create the client
+
+    const _c: RxRedis = new RxRedis(
+
+      this._redisConnection.connectionParams
+    
+    );
+
+    this._client.push(_c);
+
+    // Create the observable
+
+    return new rx.Observable<any>(
+    
+      (observer: any) => {
+
+        _c.blpop$(k, timeout)
+        .pipe(rxo.repeat(numberOfItems))
+        .subscribe(
+
+          (n: any) => {
+            
+            observer.next(n);
+
+          }, 
+            
+          // Intercepting an error here will make the
+          // unsubscribe method to always throw an uncatchable
+          // error here
+
+          (error: Error) => {
+
+            throw error; 
+          
+          },
+              
+          () => { 
+
+            observer.complete();
+
+          }
+              
         );
 
-        // Create the returning Subject
+      }
 
-        const sub: rx.Subject<any> = new rx.Subject<any>();
+    )
 
-        // Inner loop function
+  }
 
-        const loop = (k: string[], t: number) => {
 
-            if (this._close) {
 
-                this.unsubscribe();
+  /** 
+   * 
+   * Unsubscription. CALLING THIS WILL PRODUCE BRPOP TO THROW AN
+   * ERROR, THIS IS NORMAL. Use inside a try-catch.
+   * 
+   */
 
-            }
+  public close(): void {
 
-            this._client.brpop$(k, t)
-            .subscribe(
+    // Drop all connections
 
-                (n) => {
+    for(const i of this._client) {
 
-                    if (n) {
-                    
-                        sub.next(n);
-
-                    }
-
-                    // Reloop
-
-                    loop(keys, timeout);
-
-                }, 
-                
-                // Intercepting an error here will make the
-                // unsubscribe method to always throw an uncatchable
-                // error here
-
-                (error) => {},
-                
-                () => {}
-                
-            );
-
-        };
-
-        loop(keys, timeout);
-
-        return sub;
+      i.close();
 
     }
 
-
-
-    /** 
-     * 
-     * Unsubscription. CALLING THIS WILL PRODUCE BRPOP TO THROW AN
-     * ERROR, THIS IS NORMAL. Use inside a try-catch.
-     * 
-     */
-
-    public unsubscribe(): void {
-
-        // Complete the inner observable
-
-        this._close = true;
-
-        if (this._client) {
-            
-            if (this._close) {
-
-                this._client.close();
-
-            }
-
-        }
-
-    }
+  }
 
 }
