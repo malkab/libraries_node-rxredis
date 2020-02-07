@@ -123,6 +123,7 @@ export class RxRedisQueue {
   public rget$(
       keys: string | string[],
       numberOfItems: number = null,
+      batchLength: number = 1,
       timeout: number = 0
   ): rx.Observable<any> {
 
@@ -146,7 +147,19 @@ export class RxRedisQueue {
       (observer: any) => {
   
         _c.brpop$(k, timeout)
-        .pipe(rxo.repeat(numberOfItems))
+        .pipe(
+          
+          rxo.repeat(numberOfItems),
+
+          rxo.bufferCount(batchLength),
+
+          rxo.map((x: any) => {
+
+            return x.length === 1 ? x[0] : x
+
+          })
+          
+        )
         .subscribe(
 
           (n: any) => {
@@ -198,6 +211,7 @@ export class RxRedisQueue {
   public lget$(
     keys: string | string[],
     numberOfItems: number = null,
+    batchLength: number = 1,
     timeout: number = 0
   ): rx.Observable<any> {
 
@@ -220,7 +234,19 @@ export class RxRedisQueue {
       (observer: any) => {
 
         _c.blpop$(k, timeout)
-        .pipe(rxo.repeat(numberOfItems))
+        .pipe(
+          
+          rxo.repeat(numberOfItems),
+
+          rxo.bufferCount(batchLength),
+
+          rxo.map((x: any) => {
+
+            return x.length === 1 ? x[0] : x
+
+          })
+          
+        )
         .subscribe(
 
           (n: any) => {
