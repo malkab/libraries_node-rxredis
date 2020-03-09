@@ -23,17 +23,30 @@
   "private": false,
   "scripts": {
     "clean": "rm -Rf build ; rm -Rf dist",
-    "quick-test": "npm-run-all --parallel service:watch:quick-test:server service:build",
-    "start": "npm-run-all --parallel service:watch:mocha:server service:build",
-    "build": "npm run clean ; npm run service:build-lib ; npm run service:builddocs:html ; cp -R typedoc/build/html dist/docs",
 
-    "service:build-lib": "webpack --config webpack-production.config.js --progress --colors",
+    "quick-test": "npm-run-all --parallel service:watch:quick-test:server service:build",
+
+    "start": "npm-run-all --parallel service:watch:main:server service:build",
+
+    "mocha": "npm-run-all --parallel service:watch:mocha:server service:build",
+
+    "build": "npm run clean ; npm run service:build-main",
+
+    "build-with-docs": "npm run clean ; npm run service:build-main ; npm run builddocs ; cp -R typedoc/build/html dist/docs",
+
+    "build-docs": "cd typedoc ; ./html.sh ; cd ..",
+
+
+
+    "service:build-main": "webpack --config webpack-production.config.js --progress --colors",
+
     "service:build": "webpack --progress --colors",
+
     "service:watch:quick-test:server": "nodemon --inspect=0.0.0.0:9329 \"./build/quicktest.js\" --watch \"./build/quicktest.js\"",
-    "service:watch:mocha:server": "nodemon --ext js --watch ./build/mocha.js --exec 'mocha --timeout 200000 ./build/mocha.js || true'",
-    "service:builddocs:html": "cd typedoc ; ./html.sh ; cd ..",
-    "service:builddocs:markdown": "cd typedoc ; ./markdown.sh ; cd ..",
-    "service:builddocs": "npm run builddocs:html ; npm run builddocs:markdown"
+
+    "service:watch:mocha:server": "nodemon --ext js --watch ./build/mocha.js --exec 'mocha --timeout 20000 ./build/mocha.js || true'",
+
+    "service:watch:main:server": "nodemon --ext js --watch ./build/main.js --exec 'mocha --timeout 20000 ./build/main.js || true'"
   },
   "engines": {
     "node": "~8.9"
