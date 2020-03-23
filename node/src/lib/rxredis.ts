@@ -115,22 +115,20 @@ export class RxRedis {
      *
      */
     
-    constructor(
-      {
-        password = "redis",
-        allowBlocking = true,
-        url = "redis://localhost",
-        port = 6379,
-        db = 0
-      }:
-      {
-        password?: string,
-        allowBlocking?: boolean,
-        url?: string, 
-        port?: number,
-        db?: number
-      }
-    ) {
+    constructor({
+      password = "redis",
+      allowBlocking = true,
+      url = "redis://localhost",
+      port = 6379,
+      db = 0
+    }:
+    {
+      password?: string,
+      allowBlocking?: boolean,
+      url?: string, 
+      port?: number,
+      db?: number
+    }) {
 
       this._url = url;
       this._pass = password;
@@ -151,12 +149,20 @@ export class RxRedis {
 
       }
 
-      this._client = redis.createClient(this._url, connectionParams);
+      try {
+      
+        this._client = redis.createClient(this._url, connectionParams);
+
+      } catch(err) {
+
+        throw err;
+
+      }
 
       // Publish the error
 
       this._client.on("error", (err: Error) => {
-          
+        
         throw err;
 
       });
