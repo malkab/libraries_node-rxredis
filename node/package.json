@@ -1,6 +1,6 @@
 {
   "name": "@malkab/rxredis",
-  "version": "1.1.0",
+  "version": "2.0.0",
   "description": "A RxJS Redis interface.",
   "scope": "@malkab",
   "author": {
@@ -23,29 +23,16 @@
   "private": false,
   "scripts": {
     "clean": "rm -Rf build ; rm -Rf dist",
-
     "quick-test": "npm-run-all --parallel service:watch:quick-test:server service:build",
-
     "start": "npm-run-all --parallel service:watch:main:server service:build",
-
     "mocha": "npm-run-all --parallel service:watch:mocha:server service:build",
-
     "build": "npm run clean ; npm run service:build-main",
-
     "build-with-docs": "npm run clean ; npm run service:build-main ; npm run builddocs ; cp -R typedoc/build/html dist/docs",
-
     "build-docs": "cd typedoc ; ./html.sh ; cd ..",
-
-
-
     "service:build-main": "webpack --config webpack-production.config.js --progress --colors",
-
     "service:build": "webpack --progress --colors",
-
     "service:watch:quick-test:server": "nodemon --inspect=0.0.0.0:9329 \"./build/quicktest.js\" --watch \"./build/quicktest.js\"",
-
     "service:watch:mocha:server": "nodemon --ext js --watch ./build/mocha.js --exec 'mocha --timeout 20000 ./build/mocha.js || true'",
-
     "service:watch:main:server": "nodemon --ext js --watch ./build/main.js --exec 'mocha --timeout 20000 ./build/main.js || true'"
   },
   "engines": {
@@ -75,8 +62,7 @@
   },
   "dependencies": {
     "@malkab/ts-utils": "0.0.1",
-    "hiredis": "^0.5.0",
-    "redis": "^2.8.0",
+    "redis": "^3.0.2",
     "rxjs": "^6.5.2"
   }
 }
