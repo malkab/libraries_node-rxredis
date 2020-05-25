@@ -157,13 +157,14 @@ export class RxRedisHashDs {
             this._client.keys$(this._redisHashKey(pattern))
             .subscribe(
 
-                (n) => {
+                (n: string[]) => {
 
-                    const obs: Array<rx.Observable<any>> = 
-                    utils.TsUtilsRx.obsArray(
-                        n,
-                        (i) => this._client.hgetall$(i)
-                    );
+                    const obs: rx.Observable<any>[] =
+                      n.map((x: string) => {
+
+                        return this._client.hgetall$(x);
+
+                      })
 
                     rx.zip(...obs)
                     .subscribe(

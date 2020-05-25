@@ -1038,14 +1038,15 @@ export class RxRedis {
             this.keys$(pattern)
             .subscribe(
 
-                (keys) => {
+                (keys: string[]) => {
 
                     // Get array of observables
+                    const obs: rx.Observable<any>[] =
+                      keys.map((x: string) => {
 
-                    const obs = utils.TsUtilsRx.obsArray(
-                        keys,
-                        (i) => this.get$(i)
-                    );
+                        return this.get$(x)
+
+                      })
 
                     rx.zip(...obs)
                     .subscribe(
@@ -1101,14 +1102,15 @@ export class RxRedis {
             this.keys$(pattern)
             .subscribe(
 
-                (keys) => {
+                (keys: string[]) => {
 
                     // Get array of observables
+                    const obs: rx.Observable<any>[] =
+                      keys.map((x: string) => {
 
-                    const obs = utils.TsUtilsRx.obsArray(
-                        keys,
-                        (i) => this.hgetall$(i)
-                    );
+                        return this.hgetall$(x)
+
+                      })
 
                     rx.zip(...obs)
                     .subscribe(

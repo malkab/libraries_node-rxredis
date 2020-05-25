@@ -1,6 +1,6 @@
 {
   "name": "@malkab/rxredis",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "A RxJS Redis interface.",
   "scope": "@malkab",
   "author": {
@@ -36,32 +36,32 @@
     "service:watch:main:server": "nodemon --ext js --watch ./build/main.js --exec 'mocha --timeout 20000 ./build/main.js || true'"
   },
   "engines": {
-    "node": "~8.9"
+    "node": "^12.0.0"
   },
   "devDependencies": {
     "@types/chai": "^4.1.7",
-    "@types/mocha": "^5.2.6",
-    "@types/node": "^11.12.0",
+    "@types/lodash": "^4.0.0",
+    "@types/mocha": "^7.0.0",
+    "@types/node": "^14.0.0",
     "@types/redis": "^2.8.13",
     "chai": "^4.2.0",
-    "clean-webpack-plugin": "^2.0.1",
-    "mocha": "^6.2.1",
-    "nodemon": "^1.18.10",
+    "clean-webpack-plugin": "^3.0.0",
+    "mocha": "^7.0.0",
+    "nodemon": "^2.0.0",
     "npm-run-all": "^4.1.5",
-    "terser": "^3.17.0",
-    "terser-webpack-plugin": "^1.2.3",
-    "ts-loader": "^5.3.3",
+    "terser": "^4.0.0",
+    "terser-webpack-plugin": "^3.0.0",
+    "ts-loader": "^7.0.0",
     "ts-node": "^8.4.1",
-    "tslint": "^5.14.0",
-    "typedoc": "^0.14.2",
-    "typedoc-plugin-markdown": "^1.1.27",
-    "typescript": "^3.3.4000",
+    "tslint": "^6.0.0",
+    "typedoc": "^0.17.0",
+    "typescript": "^3.7.0",
     "webpack": "^4.29.6",
     "webpack-cli": "^3.3.0",
     "webpack-node-externals": "^1.7.2"
   },
   "dependencies": {
-    "@malkab/ts-utils": "0.0.1",
+    "@malkab/ts-utils": "^1.0.0",
     "redis": "^3.0.2",
     "rxjs": "^6.5.2"
   }
