@@ -1024,67 +1024,74 @@ export class RxRedis {
 
 
 
-    /**
-     * 
-     * Gets all the keys with a pattern
-     * 
-     */
+  /**
+   * 
+   * Gets all the keys with a pattern
+   * 
+   */
 
-    public getPattern$(pattern: string):
-    rx.Observable<Map<string, any>> {
+  public getPattern$(pattern: string):
+  rx.Observable<Map<string, any>> {
 
-        return new rx.Observable<Map<string, any>>((o: any) => {
-            
-            this.keys$(pattern)
-            .subscribe(
+    const out: Map<string, any> = 
+    new Map<string, any>();
 
-                (keys: string[]) => {
+    return new rx.Observable<Map<string, any>>((o: any) => {
+        
+      this.keys$(pattern)
+      .subscribe(
 
-                    // Get array of observables
-                    const obs: rx.Observable<any>[] =
-                      keys.map((x: string) => {
+        (keys: string[]) => {
 
-                        return this.get$(x)
+          // No keys retrieved, return empty map
+          if (keys.length === 0) {
 
-                      })
+            o.next(out);
+            o.complete();
 
-                    rx.zip(...obs)
-                    .subscribe(
+          }
 
-                        (values) => {
+          // Get array of observables
+          const obs: rx.Observable<any>[] =
+            keys.map((x: string) => {
 
-                            const out: Map<string, any> = 
-                                new Map<string, any>();
+            return this.get$(x)
 
-                            for (const i in keys) {
+          })
 
-                                out.set(keys[i], values[i]);
+          rx.zip(...obs)
+          .subscribe(
 
-                            }
+            (values) => {
 
-                            o.next(out);
+              for (const i in keys) {
 
-                            o.complete();
+                out.set(keys[i], values[i]);
 
-                        },
+              }
 
-                        (error) => o.error(new Error(`RxRedis error: error getPattern with pattern ${pattern}: ${error}`)),
-                
-                        () => {}
+              o.next(out);
+              o.complete();
 
-                    );
+            },
 
-                },
+            (error) => o.error(new Error(`RxRedis error: error getPattern with pattern ${pattern}: ${error}`)),
+    
+            () => {}
 
-                (error) => o.error(new Error(`RxRedis error: error getPattern with pattern ${pattern}: ${error}`)),
-                
-                () => {}
+          );
 
-            );
+        },
 
-        });
+        (error) => o.error(new Error(`RxRedis error: error getPattern with pattern ${pattern}: ${error}`)),
+        
+        () => {}
 
-    }
+      );
+
+    });
+
+  }
 
 
 

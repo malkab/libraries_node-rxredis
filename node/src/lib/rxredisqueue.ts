@@ -131,7 +131,6 @@ export class RxRedisQueue {
 
     // Create the client and push it to the client array to close 
     // all of them (MEMORY LEAKS AHEAD)
-
     const _c: RxRedis = new RxRedis(
 
       this._redisConnection.connectionParams
