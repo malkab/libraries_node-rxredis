@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# ---------------------------
+#
+# Common settings for all contexts.
+#
+# ---------------------------
+#
+# Prefix variables with MLKC_.
+#
+# ---------------------------
+
+export MLKC_REDIS_VERSION=5.0
+export MLKC_NODE_VERSION=12.16.3
