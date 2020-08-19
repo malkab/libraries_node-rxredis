@@ -1,0 +1,19 @@
+name: rxredis
+root: /home/git/malkab-rx/rxredis
+
+windows:
+  - node-dev: >
+      cd docker ;
+      . mlkcontext common ;
+      sleep 1.5 ;
+      clear
+  - redis-cli: >
+      cd docker ;
+      . mlkcontext common ;
+      sleep 1.5 ;
+      clear
+  - redis: >
+      cd docker ;
+      . mlkcontext common ;
+      sleep 0.5 ;
+      clear
