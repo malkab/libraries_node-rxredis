@@ -6,14 +6,17 @@ windows:
       cd docker ;
       . mlkcontext common ;
       sleep 1.5 ;
-      clear
+      clear ;
+      ./010_docker_node_run_interactive.sh
   - redis-cli: >
       cd docker ;
       . mlkcontext common ;
       sleep 1.5 ;
-      clear
+      clear ;
+      ./020_docker_redis_cli.sh
   - redis: >
       cd docker ;
       . mlkcontext common ;
       sleep 0.5 ;
-      clear
+      clear ;
+      ./005_docker_redis_run.sh

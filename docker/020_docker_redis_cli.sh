@@ -14,6 +14,8 @@
 
 # Check mlkcontext to check. If void, no check will be performed.
 MATCH_MLKCONTEXT=common
+# The version of Redis to run.
+REDIS_VERSION=5.0
 # Network to connect to. Remember that when attaching to the network
 # of an existing container (using container:name) the HOST is
 # "localhost". Keep in mind that linking to a container and using the -p
@@ -32,11 +34,10 @@ PASS=redis
 CONTAINER_NAME=rxredis-redis-cli
 # Container host name. Incompatible with NETWORK=container:XXX.
 CONTAINER_HOST_NAME=
-# Source folder to mount on /ext_src/.
-# A local folder with $(pwd) or a system-wide volume.
-SRC_FOLDER=$(pwd)
-# The version of Redis to run.
-REDIS_VERSION=$MLKC_REDIS_VERSION
+# Route the redis.conf and the Redis data folder here, if applicable.
+VOLUMES=(
+  $(pwd):/ext_src
+)
 
 
 
@@ -45,35 +46,31 @@ REDIS_VERSION=$MLKC_REDIS_VERSION
 # ---
 
 # Check mlkcontext
-
 if [ ! -z "${MATCH_MLKCONTEXT}" ] ; then
-
   if [ ! "$(mlkcontext)" = "$MATCH_MLKCONTEXT" ] ; then
-
     echo Please initialise context $MATCH_MLKCONTEXT
-
     exit 1
-
   fi
-
 fi
 
-
 # Command string
-
 if [ ! -z "${NETWORK}" ]; then NETWORK="--network=${NETWORK}" ; fi
-
 if [ ! -z "${CONTAINER_NAME}" ]; then CONTAINER_NAME="--name=${CONTAINER_NAME}" ; fi
-
 if [ ! -z "${CONTAINER_HOST_NAME}" ]; then CONTAINER_HOST_NAME="--hostname=${CONTAINER_HOST_NAME}" ; fi
 
-if [ ! -z "${SRC_FOLDER}" ]; then SRC_FOLDER="-v ${SRC_FOLDER}:/ext_src/" ; fi
+VOLUMES_F=
+
+if [ ! -z "${VOLUMES}" ] ; then
+  for E in "${VOLUMES[@]}" ; do
+    VOLUMES_F="${VOLUMES_F} -v ${E} "
+  done
+fi
 
 eval    docker run -ti --rm \
         $NETWORK \
         $CONTAINER_NAME \
         $CONTAINER_HOST_NAME \
-        $SRC_FOLDER \
+        $VOLUMES_F \
         --workdir /ext_src/ \
         --entrypoint /bin/bash \
         redis:$REDIS_VERSION \
