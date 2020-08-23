@@ -2,22 +2,17 @@ import * as redis from "redis";
 
 import * as rx from "rxjs";
 
-import * as utils from "@malkab/ts-utils";
-
 import * as _ from "lodash";
 
 import { RxRedisQueue } from "./rxredisqueue";
 
 import { RxRedisHashDs } from "./rxredishashds";
 
-
-
 /**
  *
  * A RxJS interface to Redis.
  *
  */
-
 export class RxRedis {
 
   /**
@@ -172,14 +167,12 @@ export class RxRedis {
 
           if (error) {
 
-              o.error(new Error(`RxRedis error: error setting key ${key} to ${value}: ${error}`));
-
-              o.complete();
+            o.error(new Error(`RxRedis error: error setting key ${key} to ${value}: ${error}`));
+            o.complete();
 
           }
 
           o.next(value);
-
           o.complete();
 
         }
@@ -209,13 +202,11 @@ export class RxRedis {
           if (error) {
 
             o.error(new Error(`RxRedis error: error llen ${key}: ${error}`));
-
             o.complete();
 
           }
 
           o.next(result);
-
           o.complete();
 
         }
@@ -245,13 +236,11 @@ export class RxRedis {
           if (error) {
 
             o.error(new Error(`RxRedis error: error lpop ${key}: ${error}`));
-
             o.complete();
 
           }
 
           o.next(result);
-
           o.complete();
 
         }
@@ -279,13 +268,11 @@ export class RxRedis {
           if (error) {
 
             o.error(new Error(`RxRedis error: error mset ${keysValues}: ${error}`));
-
             o.complete();
 
           }
 
           o.next(result);
-
           o.complete();
 
         }
@@ -312,13 +299,11 @@ export class RxRedis {
           if (error) {
 
             o.error(new Error(`RxRedis error: error getting keys ${key}: ${error}`));
-
             o.complete();
 
           }
 
           o.next(result);
-
           o.complete();
 
         }
@@ -345,13 +330,11 @@ export class RxRedis {
         if (error) {
 
           o.error(new Error(`RxRedis error: get$ ${key}: ${error}`));
-
           o.complete();
 
         }
 
         o.next(value);
-
         o.complete();
 
       });
@@ -392,13 +375,11 @@ export class RxRedis {
             if (error) {
 
               o.error(new Error(`RxRedis error: error brpop at queues ${keys} with timeout ${timeout}: ${error}`));
-
               o.complete();
 
             }
 
             o.next(value);
-
             o.complete();
 
           }
@@ -444,13 +425,11 @@ export class RxRedis {
             if (error) {
 
               o.error(new Error(`RxRedis error: error brpop at queues ${keys} with timeout ${timeout}: ${error}`));
-
               o.complete();
 
             }
 
             o.next(value);
-
             o.complete();
 
           }
@@ -480,13 +459,11 @@ export class RxRedis {
           if (error) {
 
             o.error(new Error(`RxRedis error: error lpush value ${value} at ${key}: ${error}`));
-
             o.complete();
 
           }
 
           o.next(result);
-
           o.complete();
 
         }
@@ -510,13 +487,11 @@ export class RxRedis {
           if (error) {
 
             o.error(new Error(`RxRedis error: error rpush value ${value} at ${key}: ${error}`));
-
             o.complete();
 
           }
 
           o.next(result);
-
           o.complete();
 
         }
@@ -557,13 +532,11 @@ export class RxRedis {
           if (error) {
 
             o.error(new Error(`RxRedis error: error deleting keys ${keys}: ${error}`));
-
             o.complete();
 
           }
 
           o.next(value);
-
           o.complete();
 
         }
@@ -588,13 +561,11 @@ export class RxRedis {
         if (error) {
 
           o.error(new Error(`RxRedis error: error flushall: ${error}`));
-
           o.complete();
 
         }
 
           o.next(result);
-
           o.complete();
 
       });
@@ -616,7 +587,6 @@ export class RxRedis {
     if (this.allowBlocking) {
 
       const sub: rx.Subject<any> = new rx.Subject<any>();
-
       this._client.subscribe(channel);
 
       this._client.on("message",
@@ -655,7 +625,7 @@ export class RxRedis {
 
   /*
 
-      Publish to a channel
+    Publish to a channel
 
   */
   public publish(channel: string, message: any) {
@@ -673,452 +643,387 @@ export class RxRedis {
 
     return new rx.Observable<string[]>((o: any) => {
 
-        this._client.lrange(key, first, last,
+      this._client.lrange(key, first, last,
 
-            (error, value) => {
+        (error, value) => {
 
-                if (error) {
+          if (error) {
 
-                    o.error(new Error(`RxRedis error: error lrange ${key}, first ${first}, last ${last}: ${error}`));
+            o.error(new Error(`RxRedis error: error lrange ${key}, first ${first}, last ${last}: ${error}`));
+            o.complete();
 
-                    o.complete();
+          }
 
-                }
+          o.next(value);
+          o.complete();
 
-                o.next(value);
+        }
 
-                o.complete();
-
-            }
-
-        );
+      );
 
     });
 
   }
-
-
 
   /*
 
       INCR: increases a numeric key by 1
 
   */
-
   public incr$(key: string): rx.Observable<number> {
 
-      return new rx.Observable<number>((o: any) => {
+    return new rx.Observable<number>((o: any) => {
 
-          this._client.incr(key,
+      this._client.incr(key,
 
-              (error, result) => {
+        (error, result) => {
 
-                  if (error) {
+          if (error) {
 
-                      o.error(new Error(`RxRedis error: error incr ${key}: ${error}`));
+            o.error(new Error(`RxRedis error: error incr ${key}: ${error}`));
+            o.complete();
 
-                      o.complete();
+          }
 
-                  }
+          o.next(result);
+          o.complete();
 
-                  o.next(result);
+        }
 
-                  o.complete();
+      );
 
-              }
-
-          );
-
-      });
+    });
 
   }
-
-
-
 
   /*
 
       HINCRBY: increases a tag in a hash by an amount
 
   */
-
   public hincrby$(hash: string, key: string, amount: number):
   rx.Observable<number> {
 
-      return new rx.Observable<number>((o: any) => {
+    return new rx.Observable<number>((o: any) => {
 
-          this._client.hincrby(hash, key, amount,
+      this._client.hincrby(hash, key, amount,
 
-              (error, result) => {
+        (error, result) => {
 
-                  if (error) {
+          if (error) {
 
-                      o.error(new Error(`RxRedis error: error hincrby ${key} at hash ${hash} by ${amount}: ${error}`));
+            o.error(new Error(`RxRedis error: error hincrby ${key} at hash ${hash} by ${amount}: ${error}`));
+            o.complete();
 
-                      o.complete();
+          }
 
-                  }
+          o.next(result);
+          o.complete();
 
-                  o.next(result);
+        }
 
-                  o.complete();
+      );
 
-              }
-
-          );
-
-      });
+    });
 
   }
-
-
-
 
   /*
 
       HSET: sets a tag at a hash
 
   */
-
   public hset$(hash: string, key: string, value: string):
   rx.Observable<number> {
 
-      return new rx.Observable<number>((o: any) => {
+    return new rx.Observable<number>((o: any) => {
 
-          this._client.hset(hash, key, value,
+      this._client.hset(hash, key, value,
 
-              (error, result) => {
+        (error, result) => {
 
-                  if (error) {
+          if (error) {
 
-                      o.error(new Error(`RxRedis error: error hset ${key} at hash ${hash} to ${value}: ${error}`));
+            o.error(new Error(`RxRedis error: error hset ${key} at hash ${hash} to ${value}: ${error}`));
 
-                      o.complete();
+            o.complete();
 
-                  }
+          }
 
-                  o.next(result);
+          o.next(result);
+          o.complete();
 
-                  o.complete();
+        }
 
-              }
+      );
 
-          );
-
-      });
+    });
 
   }
-
-
 
   /*
 
       HGETALL: gets the full hash.
 
   */
+  public hgetall$(hash: string): rx.Observable < any > {
 
-  public hgetall$(hash: string): rx.Observable<any> {
+    return new rx.Observable < any > ((o: any) => {
 
-      return new rx.Observable<any>((o: any) => {
+      this._client.hgetall(hash,
 
-          this._client.hgetall(hash,
+        (error, result) => {
 
-              (error, result) => {
+          if (error) {
 
-                  if (error) {
+            o.error(new Error(
+              `RxRedis error: error hgetall ${hash}: ${error}`
+            ));
 
-                      o.error(new Error(`RxRedis error: error hgetall ${hash}: ${error}`));
+            o.complete();
 
-                      o.complete();
+          }
 
-                  }
+          o.next(result);
+          o.complete();
 
-                  o.next(result);
+        }
 
-                  o.complete();
+      );
 
-              }
-
-          );
-
-      });
+    });
 
   }
-
-
 
   /**
    *
    * HMSET
    *
    */
-
   public hmset$(hash: string, value: any[]): rx.Observable<any> {
 
-      return new rx.Observable<any>((o: any) => {
+    return new rx.Observable<any>((o: any) => {
 
-          this._client.hmset(hash, value,
+      this._client.hmset(hash, value,
 
-              (error, result) => {
+        (error, result) => {
 
-                  if (error) {
+          if (error) {
 
-                      o.error(new Error(`RxRedis error: error hmset ${hash}, ${value}: ${error}`));
+            o.error(new Error(`RxRedis error: error hmset ${hash}, ${value}: ${error}`));
+            o.complete();
 
-                      o.complete();
+          }
 
-                  }
+          o.next(result);
+          o.complete();
 
-                  o.next(result);
+        }
 
-                  o.complete();
+      );
 
-              }
-
-          );
-
-      });
+    });
 
   }
-
-
 
   /**
    *
    * HDEL
    *
    */
-
   public hdel$(hash: string, key: string): rx.Observable<any> {
 
-      return new rx.Observable<any>((o: any) => {
+    return new rx.Observable<any>((o: any) => {
 
-          this._client.hdel(hash, key,
+      this._client.hdel(hash, key,
 
-              (error, result) => {
+        (error, result) => {
 
-                  if (error) {
+          if (error) {
 
-                      o.error(new Error(`RxRedis error: error hdel ${hash}, ${key}: ${error}`));
+            o.error(new Error(`RxRedis error: error hdel ${hash}, ${key}: ${error}`));
+            o.complete();
 
-                      o.complete();
+          }
 
-                  }
+          o.next(result);
+          o.complete();
 
-                  o.next(result);
+        }
 
-                  o.complete();
+      );
 
-              }
-
-          );
-
-      });
+    });
 
   }
-
-
 
   /**
    *
    * MGET
    *
    */
-
   public mget$(...keys: string[]): rx.Observable<any> {
 
-      return new rx.Observable<any>((o: any) => {
+    return new rx.Observable<any>((o: any) => {
 
-          this._client.mget(keys,
+      this._client.mget(keys,
 
-              (error, result) => {
+        (error, result) => {
 
-                  if (error) {
+          if (error) {
 
-                      o.error(new Error(`RxRedis error: error mget ${keys}: ${error}`));
+            o.error(new Error(`RxRedis error: error mget ${keys}: ${error}`));
+            o.complete();
 
-                      o.complete();
+          }
 
-                  }
-
-                  o.next(result);
-
-                  o.complete();
-
-              }
-
-          );
-
-      });
-
-  }
-
-
-
-/**
- *
- * Gets all the keys with a pattern
- *
- */
-
-public getPattern$(pattern: string):
-rx.Observable<Map<string, any>> {
-
-  const out: Map<string, any> =
-  new Map<string, any>();
-
-  return new rx.Observable<Map<string, any>>((o: any) => {
-
-    this.keys$(pattern)
-    .subscribe(
-
-      (keys: string[]) => {
-
-        // No keys retrieved, return empty map
-        if (keys.length === 0) {
-
-          o.next(out);
+          o.next(result);
           o.complete();
 
         }
 
-        // Get array of observables
-        const obs: rx.Observable<any>[] =
-          keys.map((x: string) => {
+      );
 
-          return this.get$(x)
+    });
 
-        })
+  }
 
-        rx.zip(...obs)
-        .subscribe(
+  /**
+   *
+   * Gets all the keys with a pattern
+   *
+   */
+  public getPattern$(pattern: string):
+  rx.Observable<Map<string, any>> {
 
-          (values) => {
+    const out: Map<string, any> =
+    new Map<string, any>();
 
-            for (const i in keys) {
+    return new rx.Observable<Map<string, any>>((o: any) => {
 
-              out.set(keys[i], values[i]);
+      this.keys$(pattern)
+      .subscribe(
 
-            }
+        (keys: string[]) => {
+
+          // No keys retrieved, return empty map
+          if (keys.length === 0) {
 
             o.next(out);
             o.complete();
 
-          },
+          }
 
-          (error) => o.error(new Error(`RxRedis error: error getPattern with pattern ${pattern}: ${error}`)),
+          // Get array of observables
+          const obs: rx.Observable<any>[] = keys.map((x: string) => {
 
-          () => {}
+            return this.get$(x)
 
-        );
+          })
 
-      },
+          rx.zip(...obs)
+          .subscribe(
 
-      (error) => o.error(new Error(`RxRedis error: error getPattern with pattern ${pattern}: ${error}`)),
+            (values) => {
 
-      () => {}
+              for (const i in keys) {
 
-    );
+                out.set(keys[i], values[i]);
 
-  });
+              }
 
-}
+              o.next(out);
+              o.complete();
 
+            },
 
+            (error) => o.error(new Error(`RxRedis error: error getPattern with pattern ${pattern}: ${error}`)),
+
+            () => {}
+
+          );
+
+        },
+
+        (error) => o.error(new Error(`RxRedis error: error getPattern with pattern ${pattern}: ${error}`)),
+
+        () => {}
+
+      );
+
+    });
+
+  }
 
   /**
    *
    * Gets all the hash keys with a pattern
    *
    */
-
   public hgetallPattern$(pattern: string):
   rx.Observable<Map<string, any>> {
 
-      return new rx.Observable<Map<string, any>>((o: any) => {
+    return new rx.Observable<Map<string, any>>((o: any) => {
 
-          this.keys$(pattern)
+      this.keys$(pattern)
+      .subscribe(
+
+        (keys: string[]) => {
+
+          // Get array of observables
+          const obs: rx.Observable<any>[] =
+            keys.map((x: string) => {
+
+              return this.hgetall$(x)
+
+            })
+
+          rx.zip(...obs)
           .subscribe(
 
-              (keys: string[]) => {
+            (values) => {
 
-                  // Get array of observables
-                  const obs: rx.Observable<any>[] =
-                    keys.map((x: string) => {
+              const out: Map<string, any> = new Map<string, any>();
 
-                      return this.hgetall$(x)
+              for (const i in keys) {
 
-                    })
+                out.set(keys[i], values[i]);
 
-                  rx.zip(...obs)
-                  .subscribe(
+              }
 
-                      (values) => {
+              o.next(out);
+              o.complete();
 
-                          const out: Map<string, any> =
-                              new Map<string, any>();
+            },
 
-                          for (const i in keys) {
+            (error) => o.error(new Error(`RxRedis error: error hgetallPattern with pattern ${pattern}: ${error}`)),
 
-                              out.set(keys[i], values[i]);
-
-                          }
-
-                          o.next(out);
-
-                          o.complete();
-
-                      },
-
-                      (error) => o.error(new Error(`RxRedis error: error hgetallPattern with pattern ${pattern}: ${error}`)),
-
-                      () => {}
-
-                  );
-
-              },
-
-              (error) => o.error(new Error(`RxRedis error: error hgetallPattern with pattern ${pattern}: ${error}`)),
-
-              () => {}
+            () => {}
 
           );
 
-      });
+        },
+
+        (error) => o.error(new Error(`RxRedis error: error hgetallPattern with pattern ${pattern}: ${error}`)),
+
+        () => {}
+
+      );
+
+    });
 
   }
-
-
 
   /**
    *
    * Returns a RxRedisQueue taking connection parameters of this RxRedis.
    *
    */
-
   public getRxRedisQueue(): RxRedisQueue {
 
-      return new RxRedisQueue(this);
+    return new RxRedisQueue(this);
 
   }
-
-
-
-  // /**
-  //  *
-  //  * Returns a RxRedisChannelListener taking connection parameters of
-  //  * this RxRedis.
-  //  *
-  //  */
-
-  // public getRxRedisChannelListener(): RxRedisChannelListener {
-
-  //     return new RxRedisChannelListener(this._pass, this._url,
-  //         this._port, this._db);
-
-  // }
-
-
 
   /**
    *
@@ -1126,14 +1031,11 @@ rx.Observable<Map<string, any>> {
    * this RxRedis.
    *
    */
-
   public getRxRedisHashDs(collectionName: string): RxRedisHashDs {
 
-      return new RxRedisHashDs(collectionName, this);
+    return new RxRedisHashDs(collectionName, this);
 
   }
-
-
 
   /**
    *
@@ -1141,10 +1043,123 @@ rx.Observable<Map<string, any>> {
    * non-blocking instance.
    *
    */
-
   private _blockingError(command: string): Error {
 
-      return new Error(`RxRedis: blocking command ${command} attempted on a non-blocking instance.`);
+    return new Error(`RxRedis: blocking command ${command} attempted on a non-blocking instance.`);
+
+  }
+
+  /**
+   *
+   * Returns basic info.
+   *
+   */
+  public info(): rx.Observable<any> {
+
+    return new rx.Observable<any>((o: any) => {
+
+      this._client.info(
+
+        (error, result) => {
+
+          if (error) {
+
+            o.error(new Error("RxRedis error: error running info"));
+            o.complete();
+
+          }
+
+          // Convert results in to a string
+          let res: string = <string>(<any>result);
+
+          // Define a tiny function to search the line for a key
+          // in the result string
+          const search = (key: string): string => {
+
+            let subs: string = res.substr(res.search(key));
+            subs = subs.substr(0, subs.search("\n") - 1);
+            return subs.split(":")[1];
+
+          }
+
+          // The final reservoir of info
+          const info: any = {};
+
+          // Get interesting keys from info, checking if they are numbers
+          // and converting accordingly
+          [
+            "redis_version",
+            "connected_clients",
+            "used_memory",
+            "used_memory_human",
+            "used_memory_rss",
+            "used_memory_rss_human",
+            "used_memory_peak",
+            "used_memory_peak_human",
+            "used_memory_peak_perc",
+            "used_memory_dataset",
+            "used_memory_dataset_perc",
+            "total_system_memory",
+            "total_system_memory_human",
+            "rdb_changes_since_last_save",
+            "rdb_bgsave_in_progress",
+            "rdb_last_save_time",
+            "rdb_last_bgsave_status",
+            "rdb_last_bgsave_time_sec",
+            "rdb_current_bgsave_time_sec",
+            "rdb_last_cow_size",
+            "aof_enabled",
+            "aof_rewrite_in_progress",
+            "aof_rewrite_scheduled",
+            "aof_last_rewrite_time_sec",
+            "aof_current_rewrite_time_sec",
+            "aof_last_bgrewrite_status",
+            "aof_last_write_status",
+            "aof_last_cow_size",
+            "aof_current_size",
+            "aof_base_size",
+            "total_connections_received",
+            "total_commands_processed",
+            "instantaneous_ops_per_sec",
+            "total_net_input_bytes",
+            "total_net_output_bytes",
+            "rejected_connections",
+            "sync_full",
+            "sync_partial_ok",
+            "sync_partial_err",
+            "expired_keys",
+            "expired_stale_perc",
+            "expired_time_cap_reached_count",
+            "evicted_keys",
+            "used_cpu_sys",
+            "used_cpu_user",
+            "used_cpu_sys_children",
+            "used_cpu_user_children"
+          ].map((x: string) => {
+
+            const v: string = search(x);
+            const nv: number = +v;
+
+            if (isNaN(nv)) {
+
+              info[x] = v;
+
+            } else {
+
+              info[x] = nv;
+
+            }
+
+          });
+
+          o.next(info);
+          o.complete();
+
+        }
+
+      )
+
+    })
 
   }
 
