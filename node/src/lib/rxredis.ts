@@ -163,7 +163,7 @@ export class RxRedis {
 
       this._client.set(key, value,
 
-        (error, result) => {
+        (error: any, result: any) => {
 
           if (error) {
 
@@ -197,7 +197,7 @@ export class RxRedis {
 
       this._client.llen(key,
 
-        (error, result) => {
+        (error: any, result: any) => {
 
           if (error) {
 
@@ -231,7 +231,7 @@ export class RxRedis {
 
       this._client.lpop(key,
 
-        (error, result) => {
+        (error: any, result: any) => {
 
           if (error) {
 
@@ -263,7 +263,7 @@ export class RxRedis {
 
       this._client.mset(keysValues,
 
-        (error, result) => {
+        (error: any, result: any) => {
 
           if (error) {
 
@@ -294,7 +294,7 @@ export class RxRedis {
 
       this._client.keys(key,
 
-        (error, result) => {
+        (error: any, result: any) => {
 
           if (error) {
 
@@ -370,7 +370,7 @@ export class RxRedis {
         // Run the brpop
         this._client.blpop(params,
 
-          (error, value) => {
+          (error: any, value: any) => {
 
             if (error) {
 
@@ -420,7 +420,7 @@ export class RxRedis {
 
         this._client.brpop(params,
 
-          (error, value) => {
+          (error: any, value: any) => {
 
             if (error) {
 
@@ -454,7 +454,7 @@ export class RxRedis {
 
       this._client.lpush(key, value,
 
-        (error, result) => {
+        (error: any, result: any) => {
 
           if (error) {
 
@@ -482,7 +482,7 @@ export class RxRedis {
 
       this._client.rpush(key, value,
 
-        (error, result) => {
+        (error: any, result: any) => {
 
           if (error) {
 
@@ -527,7 +527,7 @@ export class RxRedis {
 
       this._client.del(keys,
 
-        (error, value) => {
+        (error: any, value: any) => {
 
           if (error) {
 
@@ -556,7 +556,7 @@ export class RxRedis {
 
     return new rx.Observable<boolean>((o: any) => {
 
-      this._client.flushall((error, result) => {
+      this._client.flushall((error: any, result: any) => {
 
         if (error) {
 
@@ -645,7 +645,7 @@ export class RxRedis {
 
       this._client.lrange(key, first, last,
 
-        (error, value) => {
+        (error: any, value: any) => {
 
           if (error) {
 
@@ -676,7 +676,7 @@ export class RxRedis {
 
       this._client.incr(key,
 
-        (error, result) => {
+        (error: any, result: any) => {
 
           if (error) {
 
@@ -708,7 +708,7 @@ export class RxRedis {
 
       this._client.hincrby(hash, key, amount,
 
-        (error, result) => {
+        (error: any, result: any) => {
 
           if (error) {
 
@@ -740,7 +740,7 @@ export class RxRedis {
 
       this._client.hset(hash, key, value,
 
-        (error, result) => {
+        (error: any, result: any) => {
 
           if (error) {
 
@@ -772,7 +772,7 @@ export class RxRedis {
 
       this._client.hgetall(hash,
 
-        (error, result) => {
+        (error: any, result: any) => {
 
           if (error) {
 
@@ -806,7 +806,7 @@ export class RxRedis {
 
       this._client.hmset(hash, value,
 
-        (error, result) => {
+        (error: any, result: any) => {
 
           if (error) {
 
@@ -837,7 +837,7 @@ export class RxRedis {
 
       this._client.hdel(hash, key,
 
-        (error, result) => {
+        (error: any, result: any) => {
 
           if (error) {
 
@@ -868,7 +868,7 @@ export class RxRedis {
 
       this._client.mget(keys,
 
-        (error, result) => {
+        (error: any, result: any) => {
 
           if (error) {
 
@@ -924,7 +924,7 @@ export class RxRedis {
           rx.zip(...obs)
           .subscribe(
 
-            (values) => {
+            (values: any) => {
 
               for (const i in keys) {
 
@@ -937,7 +937,7 @@ export class RxRedis {
 
             },
 
-            (error) => o.error(new Error(`RxRedis error: error getPattern with pattern ${pattern}: ${error}`)),
+            (error: any) => o.error(new Error(`RxRedis error: error getPattern with pattern ${pattern}: ${error}`)),
 
             () => {}
 
@@ -945,7 +945,7 @@ export class RxRedis {
 
         },
 
-        (error) => o.error(new Error(`RxRedis error: error getPattern with pattern ${pattern}: ${error}`)),
+        (error: any) => o.error(new Error(`RxRedis error: error getPattern with pattern ${pattern}: ${error}`)),
 
         () => {}
 
@@ -981,7 +981,7 @@ export class RxRedis {
           rx.zip(...obs)
           .subscribe(
 
-            (values) => {
+            (values: any) => {
 
               const out: Map<string, any> = new Map<string, any>();
 
@@ -996,7 +996,7 @@ export class RxRedis {
 
             },
 
-            (error) => o.error(new Error(`RxRedis error: error hgetallPattern with pattern ${pattern}: ${error}`)),
+            (error: any) => o.error(new Error(`RxRedis error: error hgetallPattern with pattern ${pattern}: ${error}`)),
 
             () => {}
 
@@ -1004,7 +1004,7 @@ export class RxRedis {
 
         },
 
-        (error) => o.error(new Error(`RxRedis error: error hgetallPattern with pattern ${pattern}: ${error}`)),
+        (error: any) => o.error(new Error(`RxRedis error: error hgetallPattern with pattern ${pattern}: ${error}`)),
 
         () => {}
 
@@ -1060,7 +1060,7 @@ export class RxRedis {
 
       this._client.info(
 
-        (error, result) => {
+        (error: any, result: any) => {
 
           if (error) {
 
