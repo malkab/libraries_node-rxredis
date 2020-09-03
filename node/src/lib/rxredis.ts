@@ -83,17 +83,28 @@ export class RxRedis {
 
   /**
    *
-   * Constructor.
+   * Constructor. Disallows blocking connections by default.
    *
-   * allowBlockign by default.
+   * @param __namedParameters     Connection options.
+   * @param url                   The URL of the Redis server, defaults to
+   *                              **redis://localhost**.
+   * @param password              The server's password, defaults to **redis**.
+   *                              An open server without password is easily
+   *                              found and exploited.
+   * @param port                  Server's port, defaults to **6379**.
+   * @param db                    The database to use. Defaults to **0**.
+   * @param allowBlocking         Allows for blocking connections, like the ones
+   *                              to use the BPOP commands. Defaults to
+   *                              **false**, emitting an error if a blocking
+   *                              command is attempted.
    *
    */
   constructor({
-    password = "redis",
-    allowBlocking = true,
     url = "redis://localhost",
+    password = "redis",
     port = 6379,
-    db = 0
+    db = 0,
+    allowBlocking = false
   }:
   {
     password?: string,
