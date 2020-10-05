@@ -11,3 +11,4 @@ tsconfig.json
 tslint.json
 webpack*
 *.tgz
+test

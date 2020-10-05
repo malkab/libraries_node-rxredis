@@ -270,8 +270,8 @@ export class RxRedisQueue {
    * Performs a standard get (from the left), to use in conjunction with set$.
    *
    */
-  public get$(keys: string | string[], numberOfItems: number,
-    batchLength: number, timeout: number): rx.Observable<any> {
+  public get$(keys: string | string[], numberOfItems?: number,
+    batchLength?: number, timeout?: number): rx.Observable<any> {
 
       return this.lget$(keys, numberOfItems, batchLength, timeout);
 
