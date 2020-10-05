@@ -1,5 +1,5 @@
 name: rxredis
-root: /home/git/malkab-rx/rxredis
+root: /home/git/malkab-libraries-node/rxredis
 
 windows:
   - node-dev: >

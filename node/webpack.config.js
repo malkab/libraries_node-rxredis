@@ -1,9 +1,11 @@
 const path = require('path');
+const FilterWarningsPlugin = require('webpack-filter-warnings-plugin');
 
 module.exports = {
   entry: {
     mocha: "./src/test/main.test.ts",
-    quicktest: "./src/test/00-quick-test.ts"
+    quicktest: "./src/test/00-quick-test.ts",
+    index: "./src/index.ts"
   },
   mode: "development",
   watch: true,
@@ -11,6 +13,10 @@ module.exports = {
   devtool: 'inline-source-map',
   devServer: {
     contentBase: './build'
+  },
+  watchOptions: {
+    poll: true,
+    ignored: /node_modules/
   },
 
   output: {
