@@ -336,17 +336,17 @@ export class RxRedis {
 
       this._client.get(key,
 
-        (error: any, value: string) => {
+        (error: any, value: string | null) => {
 
-        if (error) {
+          if (error) {
 
-          o.error(new Error(`RxRedis error: get$ ${key}: ${error}`));
+            o.error(new Error(`RxRedis error: get$ ${key}: ${error}`));
+            o.complete();
+
+          }
+
+          o.next(value);
           o.complete();
-
-        }
-
-        o.next(value);
-        o.complete();
 
       });
 
