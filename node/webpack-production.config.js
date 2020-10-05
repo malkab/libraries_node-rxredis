@@ -4,62 +4,63 @@ const nodeExternals = require("webpack-node-externals");
 const TerserPlugin = require('terser-webpack-plugin');
 
 module.exports = {
-    entry: './src/lib',
 
-    mode: "production",
-    target: "node",
-    plugins: [
+  entry: "./src/index.ts",
 
-        new CleanWebpackPlugin()
+  mode: "production",
+  target: "node",
+  plugins: [
 
-    ],
+    new CleanWebpackPlugin()
 
-    output: {
+  ],
 
-        filename: '[name].js',
-        path: path.resolve(__dirname, 'dist'),
-        libraryTarget: "commonjs"
+  output: {
+    filename: 'index.js',
+    path: path.resolve(__dirname, 'dist'),
+    libraryTarget: "umd",
+    library: "LibraryNameToMakePublic"
+  },
 
-    },
+  externals: [nodeExternals()],
 
-    externals: [nodeExternals()],
+  module: {
+    rules: [{
+      test: /\.tsx?$/,
+      use: 'ts-loader',
+      exclude: [
 
-    module: {
-        rules: [{
-            test: /\.tsx?$/,
-            use: 'ts-loader',
-            exclude: [
+        path.join(__dirname, '/node_modules/'),
+        path.join(__dirname, "/src/test/")
 
-                path.join(__dirname, '/node_modules/')
-        
-            ]
-        }]
-    },
+      ]
+    }]
+  },
 
-    optimization: {
+  optimization: {
 
-        minimize: true,
-        minimizer: [new TerserPlugin({
-            parallel: true,
-            terserOptions: {
-                extractComments: true,
-                mangle: {
-                    toplevel: true
-                },
-                output: {
-                    comments: false
-                }
-            }
-        })]
+    minimize: true,
+    minimizer: [new TerserPlugin({
+      parallel: true,
+      terserOptions: {
+        extractComments: true,
+        mangle: {
+          toplevel: true
+        },
+        output: {
+          comments: false
+        }
+      }
+    })]
 
-    },
+  },
 
-    node: {
-        fs: "empty"
-    },
+  node: {
+    fs: "empty"
+  },
 
-    resolve: {
-        extensions: ['.tsx', '.ts', '.js']
-    }
+  resolve: {
+    extensions: ['.tsx', '.ts', '.js']
+  }
 
 };

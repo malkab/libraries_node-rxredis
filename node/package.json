@@ -8,8 +8,8 @@
     "email": "jp.perez.alcantara@gmail.com",
     "url": "http://me.com"
   },
-  "main": "dist/main.js",
-  "types": "dist/lib/index.d.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "keywords": [
     "Redis",
     "RxJS"
@@ -26,7 +26,7 @@
     "quick-test": "npm-run-all --parallel service:watch:quick-test:server service:build",
     "start": "npm-run-all --parallel service:watch:mocha:server service:build",
     "build": "npm run clean ; npm run service:build-lib",
-    "build-with-docs": "npm run clean ; npm run service:build-lib ; npm run build-docs ; cp -R typedoc/build/html dist/docs",
+    "build-with-docs": "npm run clean ; npm run service:build-lib ; npm run build-docs ; rm -Rf docs ; cp -R typedoc/build/html docs",
     "build-docs": "cd typedoc ; ./html ; cd ..",
     "service:build-lib": "webpack --config webpack-production.config.js --progress --colors",
     "service:build": "webpack --progress --colors",
@@ -47,19 +47,19 @@
     "mocha": "^7.0.0",
     "nodemon": "^2.0.0",
     "npm-run-all": "^4.1.5",
-    "terser": "^4.0.0",
-    "terser-webpack-plugin": "^3.0.0",
-    "ts-loader": "^7.0.0",
-    "ts-node": "^8.4.1",
+    "terser": "^5.3.4",
+    "terser-webpack-plugin": "^4.2.2",
+    "ts-loader": "^8.0.4",
+    "ts-node": "^9.0.0",
     "tslint": "^6.0.0",
-    "typedoc": "^0.17.0",
-    "typescript": "^3.7.0",
+    "typedoc": "^0.19.2",
+    "typescript": "^4.0.3",
     "webpack": "^4.29.6",
     "webpack-cli": "^3.3.0",
-    "webpack-node-externals": "^1.7.2"
+    "webpack-node-externals": "^2.5.2"
   },
   "dependencies": {
-    "@malkab/ts-utils": "^1.0.0",
+    "@malkab/ts-utils": "^4.1.1",
     "redis": "^3.0.2",
     "rxjs": "^6.5.2"
   }

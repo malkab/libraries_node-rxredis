@@ -20,7 +20,8 @@
         "no-var-requires": false,
         "only-arrow-functions": false,
         "ban-types": false,
-        "max-classes-per-file": false
+        "max-classes-per-file": false,
+        "no-empty": false
     },
     "rulesDirectory": []
-}
+  }

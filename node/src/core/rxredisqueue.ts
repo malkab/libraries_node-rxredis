@@ -114,7 +114,7 @@ export class RxRedisQueue {
    */
   public rget$(
       keys: string | string[],
-      numberOfItems: number = null,
+      numberOfItems: number = 1,
       batchLength: number = 1,
       timeout: number = 0
   ): rx.Observable<any> {
@@ -197,7 +197,7 @@ export class RxRedisQueue {
    */
   public lget$(
     keys: string | string[],
-    numberOfItems: number,
+    numberOfItems: number = 1,
     batchLength: number = 1,
     timeout: number = 0
   ): rx.Observable<any> {
