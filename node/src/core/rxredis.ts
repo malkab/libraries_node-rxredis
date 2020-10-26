@@ -563,9 +563,9 @@ export class RxRedis {
    * Executes a flushall command. Returns true if everything went well.
    *
    */
-  public flushall$(): rx.Observable<boolean> {
+  public flushall$(): rx.Observable<string> {
 
-    return new rx.Observable<boolean>((o: any) => {
+    return new rx.Observable<string>((o: any) => {
 
       this._client.flushall((error: any, result: any) => {
 
