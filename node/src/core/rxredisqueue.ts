@@ -300,9 +300,6 @@ export class RxRedisQueue {
    * **IRedisMessageObject**, and this method will care about the instantiation
    * of serialized messages on the object class given by the **object** param.
    *
-   * @typeParam T
-   * The type to serialize. The class must be provided in the **object** param.
-   *
    * @param redis
    * A blocking Redis connection to wait for messages on. This connection must
    * be used exclusively for this method. A blocking connection can be easily
@@ -312,8 +309,10 @@ export class RxRedisQueue {
    * Set of keys, in order, to look for messages. Can be a single one or an
    * array.
    *
-   * @param object
-   * The class to serialize messages to.
+   * @param constructorFunc
+   * A function that returns an instance of the correct object when a
+   * serialization is retrieved from the RedisMessage. This is the place to run
+   * factories for polymorphic objects.
    *
    * @param buffer
    * Optional, defaults to 1. Number of messages to retrieve as a set.
@@ -333,32 +332,32 @@ export class RxRedisQueue {
    * serialized message object.
    *
    */
-  public static loop$<T>({
+  public static loop$({
       redis,
       keys,
-      object,
+      constructorFunc,
       buffer = 1,
       timeout = 0
     }: {
       redis: RxRedis;
       keys: string | string[];
-      object: any;
+      constructorFunc: (params: any) => any;
       buffer?: number;
       timeout?: number;
-  }): rx.Observable<{ queue: string; object: T }[] | { queue: string; object: T }> {
+  }): rx.Observable<{ queue: string; object: any }[] | { queue: string; object: any }> {
 
-    return new rx.Observable<{ queue: string; object: T }[] | { queue: string; object: T }>((x: any) => {
+    return new rx.Observable<{ queue: string; object: any }[] | { queue: string; object: any }>((x: any) => {
 
       const loop = ({
           redis,
           keys,
-          object,
+          constructorFunc,
           buffer = 1,
           timeout = 0
         }: {
           redis: RxRedis;
           keys: string | string[];
-          object: any;
+          constructorFunc: (params: any) => any;
           buffer?: number;
           timeout?: number;
       }) => {
@@ -376,11 +375,11 @@ export class RxRedisQueue {
             // Check if o is a multi response produced by numberOfItems
             const om: any[] = (Array.isArray(o[0])) ? o : [ o ];
 
-            const out: { queue: string; object: T }[] = [];
+            const out: { queue: string; object: any }[] = [];
 
             om.map((i: any) => out.push({
               queue: i[0],
-              object: <T>(new object(JSON.parse(i[1])))
+              object: constructorFunc(JSON.parse(i[1]))
             }))
 
             out.length === 1 ? x.next(out[0]) : x.next(out);
@@ -388,7 +387,7 @@ export class RxRedisQueue {
             loop({
               redis: redis,
               keys: keys,
-              object: object,
+              constructorFunc,
               buffer: buffer,
               timeout: timeout
             });
@@ -408,7 +407,7 @@ export class RxRedisQueue {
               loop({
                 redis: redis,
                 keys: keys,
-                object: object,
+                constructorFunc,
                 buffer: buffer,
                 timeout: timeout
               });
@@ -424,7 +423,7 @@ export class RxRedisQueue {
       loop({
         redis: redis,
         keys: keys,
-        object: object,
+        constructorFunc,
         buffer: buffer,
         timeout: timeout
       });

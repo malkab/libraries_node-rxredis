@@ -81,10 +81,10 @@ export class RedisMessageObjectExample implements IRedisMessageObject {
 }
 
 // Will check some messages, close the connection, and fail
-RxRedisQueue.loop$<RedisMessageObjectExample>({
+RxRedisQueue.loop$({
   redis: bRedis,
   keys: "q",
-  object: RedisMessageObjectExample
+  constructorFunc: (params: any) => new RedisMessageObjectExample(params)
 }).pipe(
 
   rxo.map((o: any) => {

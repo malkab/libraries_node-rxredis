@@ -54,9 +54,9 @@ export class RedisMessageObjectExample implements IRedisMessageObject {
   // Here the class does something intense
   public somethingIntense(): number {
 
-    for(let i = 0 ; i < 5000000000 ; i++) {
+    for(let i = 0 ; i < 500000000 ; i++) {
 
-      if(i % 1000000000 === 0) console.log(`Task ${this.a}: ${i}`)
+      if(i % 100000000 === 0) console.log(`Task ${this.a}: ${i}`)
 
     }
 

@@ -82,6 +82,8 @@ describe("Create a queue and drop some messages", function() {
 
     testCaseName: "Create a queue and drop some messages",
 
+    timeout: 60000,
+
     observables: [
 
       RxRedisQueue.set$(redis, "q",
@@ -97,10 +99,10 @@ describe("Create a queue and drop some messages", function() {
         new RedisMessageObjectExample({ a: 3, b: "3" })),
 
       // Will check the existing message, close the connection, and fail
-      RxRedisQueue.loop$<RedisMessageObjectExample>({
+      RxRedisQueue.loop$({
         redis: bRedis,
         keys: "q",
-        object: RedisMessageObjectExample
+        constructorFunc: (params: any) => new RedisMessageObjectExample(params)
       }).pipe(
 
         rxo.map((o: any) => {
@@ -112,7 +114,7 @@ describe("Create a queue and drop some messages", function() {
 
           } else {
 
-            return (<RedisMessageObjectExample>o.object).somethingIntense();
+            return o.object.somethingIntense();
 
           }
 
@@ -149,7 +151,7 @@ describe("Create a queue and drop some messages", function() {
 
     ],
 
-    verbose: true
+    verbose: false
 
   })
 
