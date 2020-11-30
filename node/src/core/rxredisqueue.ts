@@ -36,28 +36,15 @@ export class RxRedisQueue {
 
   /**
    *
-   * The Redis client pool. This is created because multiple blocking
-   * operations can be launched at the same time. Don't forget to close
-   * this object.
+   * Publish to the queue.
    *
+   * @param keys
+   *
+   * @param timeout
    */
-  private _client: RxRedis[] = [];
+  public static lset$(redis: RxRedis, queueName: string, message: any): rx.Observable<any> {
 
-  /**
-   *
-   * The base connection.
-   *
-   */
-  private _redisConnection: RxRedis;
-
-  /**
-   *
-   * Constructor.
-   *
-   */
-  constructor(redisConnection: RxRedis) {
-
-    this._redisConnection = redisConnection;
+    return redis.lpush$(queueName, message);
 
   }
 
@@ -69,23 +56,9 @@ export class RxRedisQueue {
    *
    * @param timeout
    */
-  public lset$(queueName: string, message: any): rx.Observable<any> {
+  public static rset$(redis: RxRedis, queueName: string, message: any): rx.Observable<any> {
 
-    return this._redisConnection.lpush$(queueName, message);
-
-  }
-
-  /**
-   *
-   * Publish to the queue.
-   *
-   * @param keys
-   *
-   * @param timeout
-   */
-  public rset$(queueName: string, message: any): rx.Observable<any> {
-
-    return this._redisConnection.rpush$(queueName, message);
+    return redis.rpush$(queueName, message);
 
   }
 
@@ -94,9 +67,9 @@ export class RxRedisQueue {
    * Perform a standard set (from the right), to use in conjuntion with get$.
    *
    */
-  public set$(queueName: string, message: any): rx.Observable<any> {
+  public static set$(redis: RxRedis, queueName: string, message: any): rx.Observable<any> {
 
-    return this.rset$(queueName, message);
+    return redis.rpush$(queueName, message);
 
   }
 
@@ -112,32 +85,28 @@ export class RxRedisQueue {
    *                          (waiting forever).
    *
    */
-  public rget$(
-      keys: string | string[],
-      numberOfItems: number = 1,
-      batchLength: number = 1,
-      timeout: number = 0
-  ): rx.Observable<any> {
+  public static rget$({
+      redis,
+      keys,
+      numberOfItems = 1,
+      batchLength = 1,
+      timeout = 0
+    }: {
+      redis: RxRedis;
+      keys: string | string[];
+      numberOfItems: number;
+      batchLength: number;
+      timeout: number;
+  }): rx.Observable<any> {
 
     const k: string[] = Array.isArray(keys) ? keys : [ keys ];
 
-    // Create the client and push it to the client array to close
-    // all of them (MEMORY LEAKS AHEAD)
-    const _c: RxRedis = new RxRedis(
-
-      this._redisConnection.connectionParams
-
-    );
-
-    this._client.push(_c);
-
     // Create the observable
-
     return new rx.Observable<any>(
 
       (observer: any) => {
 
-        _c.brpop$(k, timeout)
+        redis.brpop$(k, timeout)
         .pipe(
 
           rxo.repeat(numberOfItems),
@@ -195,32 +164,28 @@ export class RxRedisQueue {
    *                          (waiting forever).
    *
    */
-  public lget$(
-    keys: string | string[],
-    numberOfItems: number = 1,
-    batchLength: number = 1,
-    timeout: number = 0
-  ): rx.Observable<any> {
+  public static lget$({
+      redis,
+      keys,
+      numberOfItems = 1,
+      batchLength = 1,
+      timeout = 0
+    }: {
+      redis: RxRedis;
+      keys: string | string[];
+      numberOfItems: number;
+      batchLength: number;
+      timeout: number;
+  }): rx.Observable<any> {
 
     const k: string[] = Array.isArray(keys) ? keys : [ keys ];
 
-    // Create the client
-
-    const _c: RxRedis = new RxRedis(
-
-      this._redisConnection.connectionParams
-
-    );
-
-    this._client.push(_c);
-
     // Create the observable
-
     return new rx.Observable<any>(
 
       (observer: any) => {
 
-        _c.blpop$(k, timeout)
+        redis.blpop$(k, timeout)
         .pipe(
 
           rxo.repeat(numberOfItems),
@@ -270,27 +235,111 @@ export class RxRedisQueue {
    * Performs a standard get (from the left), to use in conjunction with set$.
    *
    */
-  public get$(keys: string | string[], numberOfItems?: number,
-    batchLength?: number, timeout?: number): rx.Observable<any> {
+  public static loop$<T>(): ({
+      redis,
+      keys,
+      nextFunction,
+      errorFunction,
+      numberOfItems,
+      batchLength,
+      timeout
+    }: {
+      redis: RxRedis;
+      keys: string | string[];
+      nextFunction: (response: T) => any;
+      errorFunction: (error: Error) => any;
+      numberOfItems?: number;
+      batchLength?: number;
+      timeout?: number;
+  }) => void {
 
-      return this.lget$(keys, numberOfItems, batchLength, timeout);
+      const loop: ({
+          redis,
+          keys,
+          nextFunction,
+          errorFunction,
+          numberOfItems,
+          batchLength,
+          timeout
+        }: {
+          redis: RxRedis;
+          keys: string | string[];
+          nextFunction: (response: T) => any;
+          errorFunction: (error: Error) => any;
+          numberOfItems?: number;
+          batchLength?: number;
+          timeout?: number;
+      }) => void = ({
+          redis,
+          keys,
+          nextFunction,
+          errorFunction,
+          numberOfItems = 1,
+          batchLength = 1,
+          timeout = 0
+        }: {
+          redis: RxRedis;
+          keys: string | string[];
+          nextFunction: (response: T) => any;
+          errorFunction: (error: Error) => any;
+          numberOfItems?: number;
+          batchLength?: number;
+          timeout?: number;
+      }) => {
 
-  }
+        RxRedisQueue.lget$({
+          redis: redis,
+          keys: keys,
+          numberOfItems: numberOfItems,
+          batchLength: batchLength,
+          timeout: timeout
+        }).subscribe(
 
-  /**
-   *
-   * Unsubscription. CALLING THIS WILL PRODUCE BRPOP TO THROW AN
-   * ERROR, THIS IS NORMAL. Use inside a try-catch.
-   *
-   */
-  public close(): void {
+          (o: T) => {
 
-    // Drop all connections
-    for(const i of this._client) {
+            try {
 
-      i.close();
+              nextFunction(o);
 
-    }
+            } catch(e) {
+
+              errorFunction(e);
+
+            }
+
+            loop({
+              redis: redis,
+              keys: keys,
+              nextFunction: nextFunction,
+              errorFunction: errorFunction,
+              numberOfItems: numberOfItems,
+              batchLength: batchLength,
+              timeout: timeout
+            });
+
+          },
+
+          (e: Error) => {
+
+            errorFunction(e);
+
+            loop({
+              redis: redis,
+              keys: keys,
+              nextFunction: nextFunction,
+              errorFunction: errorFunction,
+              numberOfItems: numberOfItems,
+              batchLength: batchLength,
+              timeout: timeout
+            });
+
+          }
+
+        )
+
+      }
+
+      return loop;
 
   }
 

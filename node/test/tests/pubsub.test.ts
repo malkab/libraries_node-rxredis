@@ -1,4 +1,4 @@
-import { RxRedis } from "../../lib/index";
+import { RxRedis } from "../../src/index";
 
 // This is a quick-and-dirty test file
 

@@ -2,7 +2,7 @@ name: rxredis
 root: /home/git/malkab-libraries-node/rxredis
 
 windows:
-  - rxredis/node-dev: >
+  - node-dev: >
       cd docker ;
       . mlkcontext common ;
       sleep 2.5 ;

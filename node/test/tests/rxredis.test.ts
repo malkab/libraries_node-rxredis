@@ -6,9 +6,7 @@ import * as rx from "rxjs";
 
 import * as rxo from "rxjs/operators";
 
-import { RxRedis } from "../../lib/index";
-
-
+import { RxRedis } from "../../src/index";
 
 describe("RxRedis", function() {
 
@@ -84,7 +82,7 @@ describe("RxRedis", function() {
       () => {
 
         r.close();
-      
+
         done();
 
       }
@@ -148,7 +146,7 @@ describe("RxRedis", function() {
       rxo.concatMap((n: any) => {
 
         expect(n, "Second lpop$").to.be.equal("200");
-      
+
         return r.flushall$();
 
       })
@@ -175,7 +173,7 @@ describe("RxRedis", function() {
       () => {
 
         r.close();
-      
+
         done();
 
       }

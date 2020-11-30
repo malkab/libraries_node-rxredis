@@ -8,6 +8,8 @@ import { RxRedisQueue } from "./rxredisqueue";
 
 import { RxRedisHashDs } from "./rxredishashds";
 
+import { IRedisInfo } from './iredisinfo';
+
 /**
  *
  * A RxJS interface to Redis.
@@ -100,19 +102,19 @@ export class RxRedis {
    *
    */
   constructor({
-    url = "redis://localhost",
-    password = "redis",
-    port = 6379,
-    db = 0,
-    allowBlocking = false
-  }:
-  {
-    password?: string,
-    allowBlocking?: boolean,
-    url?: string,
-    port?: number,
-    db?: number
-  }) {
+      url = "redis://localhost",
+      password = "redis",
+      port = 6379,
+      db = 0,
+      allowBlocking = false
+    }:
+    {
+      password?: string,
+      allowBlocking?: boolean,
+      url?: string,
+      port?: number,
+      db?: number
+  } = {}) {
 
     this._url = url;
     this._pass = password;
@@ -375,10 +377,9 @@ export class RxRedis {
 
         // Add the timeout to the keys
         params.concat(keys);
-
         params.push(timeout);
 
-        // Run the brpop
+        // Run the blpop
         this._client.blpop(params,
 
           (error: any, value: any) => {
@@ -1065,9 +1066,9 @@ export class RxRedis {
    * Returns basic info.
    *
    */
-  public info(): rx.Observable<any> {
+  public info(): rx.Observable<IRedisInfo> {
 
-    return new rx.Observable<any>((o: any) => {
+    return new rx.Observable<IRedisInfo>((o: any) => {
 
       this._client.info(
 
@@ -1171,6 +1172,22 @@ export class RxRedis {
       )
 
     })
+
+  }
+
+  /**
+   *
+   * Clone this connection, allowing blocking operations.
+   *
+   */
+  public blockingClone() {
+
+    const params: any = {
+      ...this.connectionParams,
+      allowBlocking: true
+    }
+
+    return new RxRedis(params);
 
   }
 
