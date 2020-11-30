@@ -2,11 +2,9 @@ import "mocha";
 
 import { expect } from "chai";
 
-import * as rx from "rxjs";
-
 import * as rxo from "rxjs/operators";
 
-import { RxRedis } from "../../src/index";
+import { RxRedis } from "../../../src/index";
 
 describe("RxRedis", function() {
 

@@ -25,6 +25,7 @@
     "package-json-version": "echo 2020-10-22",
     "clean": "rm -Rf build ; rm -Rf dist",
     "quick-test": "npm-run-all --parallel service:watch:quick-test:server service:build",
+    "queue-test": "npm-run-all --parallel service:watch:queue-test:server service:build",
     "start": "npm-run-all --parallel service:watch:mocha:server service:build",
     "build": "yarn clean ; yarn service:build-lib",
     "build-with-docs": "yarn clean ; yarn service:build-lib ; yarn build-docs ; rm -Rf docs ; cp -R typedoc/build/html docs",
@@ -34,6 +35,7 @@
     "service:build-lib": "webpack --config webpack-production.config.js --progress",
     "service:build": "webpack --progress --watch",
     "service:watch:quick-test:server": "nodemon --inspect=0.0.0.0:9329 \"./build/quicktest.js\" --watch \"./build/quicktest.js\"",
+    "service:watch:queue-test:server": "nodemon --inspect=0.0.0.0:9329 \"./build/queuetest.js\" --watch \"./build/queuetest.js\"",
     "service:watch:mocha:server": "nodemon --ext js --watch ./build/ --exec 'mocha --timeout 20000 ./build/mocha.js || true'"
   },
   "engines": {

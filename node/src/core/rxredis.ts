@@ -146,11 +146,7 @@ export class RxRedis {
     }
 
     // Publish the error
-    this._client.on("error", (err: Error) => {
-
-      throw err;
-
-    });
+    this._client.on("error", (err: Error) => { throw err })
 
   }
 

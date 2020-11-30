@@ -4,24 +4,52 @@ import { expect } from "chai";
 
 import * as rxo from "rxjs/operators";
 
-import { IRedisInfo, RxRedis, RxRedisQueue } from "../../src/index";
-
-import * as rx from "rxjs";
+import { IRedisInfo, RxRedisQueue } from "../../src/index";
 
 import { rxMochaTests } from "@malkab/ts-utils";
 
-import { redis, queue } from "./common";
+import { redis, RedisMessageObjectExample, bRedis } from "./common";
 
 /**
  *
- * Create blocking queue.
+ * Clear the Redis.
  *
  */
-describe("Create blocking queue loop", function() {
+describe("Clear the Redis", function() {
 
   rxMochaTests({
 
-    testCaseName: "Create blocking queue loop",
+    testCaseName: "Clear the Redis",
+
+    observables: [
+
+      redis.flushall$()
+
+    ],
+
+    assertions: [
+
+      (o: any) => expect(o, "Clear the Redis")
+        .to.be.equal("OK")
+
+    ],
+
+    verbose: false
+
+  })
+
+})
+
+/**
+ *
+ * Initial clients.
+ *
+ */
+describe("Initial clients", function() {
+
+  rxMochaTests({
+
+    testCaseName: "Initial clients",
 
     observables: [
 
@@ -33,9 +61,7 @@ describe("Create blocking queue loop", function() {
 
       (o: IRedisInfo) => expect(o.connected_clients,
         "Initial clients (including the CLI client of tmuxinator")
-        .to.be.equal(3),
-
-      // (o: any) => console.log("D: njjje", o)
+        .to.be.equal(3)
 
     ],
 
@@ -45,201 +71,117 @@ describe("Create blocking queue loop", function() {
 
 })
 
-// describe("Queues", function() {
+/**
+ *
+ * Create a queue and drop some messages.
+ *
+ */
+describe("Create a queue and drop some messages", function() {
 
-//   it("set$ / get$", (done) => {
+  rxMochaTests({
 
-//     // The Redis connection and the queue controller
+    testCaseName: "Create a queue and drop some messages",
 
-//     const r: RxRedis = new RxRedis({});
+    observables: [
 
-//     const q: RxRedisQueue = r.getRxRedisQueue();
+      RxRedisQueue.set$(redis, "q",
+        new RedisMessageObjectExample({ a: 0, b: "0" })),
 
-//     // Observable output collectors for COMPLETED step analysis
+      RxRedisQueue.set$(redis, "q",
+        new RedisMessageObjectExample({ a: 1, b: "1" })),
 
-//     const popResults: any[] = [];
+      RxRedisQueue.set$(redis, "q",
+        new RedisMessageObjectExample({ a: 2, b: "2" })),
 
-//     const ranges: any[] = [];
+      RxRedisQueue.set$(redis, "q",
+        new RedisMessageObjectExample({ a: 3, b: "3" })),
 
+      // Will check the existing message, close the connection, and fail
+      RxRedisQueue.loop$<RedisMessageObjectExample>({
+        redis: bRedis,
+        keys: "q",
+        object: RedisMessageObjectExample
+      }).pipe(
 
-//     // Start by reseting the Redis
+        rxo.map((o: any) => {
 
-//     r.flushall$()
-//     .pipe(
+          // The object with ID 2 will close the connection and the loop
+          if (o.object.a === 2) {
 
-//       // rset$ some values to q
+            bRedis.close();
 
-//       rxo.concatMap((x: any) => {
+          } else {
 
-//         expect(x, "Initial flushall$").to.be.equal("OK");
+            return (<RedisMessageObjectExample>o.object).somethingIntense();
 
-//         return q.rset$("q", [ 0, 1, 2, 3, 4, 5 ]);
+          }
 
-//       }),
+        })
 
-//       // Check there they are
+      )
 
-//       rxo.concatMap((x: any) => {
+    ],
 
-//         expect(x, "First rset$").to.be.equal(6);
+    assertions: [
 
-//         return r.lrange$("q", 0, 100);
+      (o: IRedisInfo) => expect(o, "Messages in queue 'q'")
+        .to.be.equal(1),
 
-//       }),
+      (o: IRedisInfo) => expect(o, "Messages in queue 'q'")
+        .to.be.equal(2),
 
-//       // lset$ some more ones
+      (o: IRedisInfo) => expect(o, "Messages in queue 'q'")
+        .to.be.equal(3),
 
-//       rxo.concatMap((x: any) => {
+      (o: IRedisInfo) => expect(o, "Messages in queue 'q'")
+        .to.be.equal(4),
 
-//         expect(x, "First lrange$")
-//         .to.be.deep.equal([ "0", "1", "2", "3", "4", "5" ]);
+      (o: IRedisInfo) => expect(o, "Messages in queue 'q'")
+        .to.be.equal(0),
 
-//         return q.lset$("q", [ 10, 20, 30, 40 ]);
+      (o: IRedisInfo) => expect(o, "Messages in queue 'q'")
+        .to.be.equal(1),
 
-//       }),
+      (o: IRedisInfo) => expect(o, "Messages in queue 'q'")
+        .to.be.undefined,
 
-//       // Check they entered the right way
+      (o: Error) => expect(o.message).to.be.equal("RxRedis error: error brpop at queues q with timeout 0: AbortError: BLPOP can\'t be processed. The connection is already closed.")
 
-//       rxo.concatMap((x: any) => {
+    ],
 
-//         expect(x, "First lset$").to.be.equal(10);
+    verbose: true
 
-//         return r.lrange$("q", 0, 100);
+  })
 
-//       }),
+})
 
-//       // Add some items to a second list
+/**
+ *
+ * Final clients.
+ *
+ */
+describe("Final clients", function() {
 
-//       rxo.concatMap((x: any) => {
+  rxMochaTests({
 
-//         expect(x, "Second lrange$")
-//         .to.be.deep.equal([
-//           "40", "30", "20", "10", "0", "1", "2", "3", "4", "5"
-//         ]);
+    testCaseName: "Final clients",
 
-//         return q.rset$("t", [ "A" ]);
+    observables: [
 
-//       }),
+      redis.info()
 
-//       // Check they entered the right way
+    ],
 
-//       rxo.concatMap((x: any) => {
+    assertions: [
 
-//         expect(x, "lset$ into t").to.be.equal(1);
+      (o: IRedisInfo) => expect(o.connected_clients,
+        "Final clients (including the CLI client of tmuxinator")
+        .to.be.equal(2)
 
-//         return r.lrange$("t", 0, 100);
+    ],
 
-//       }),
+    verbose: false
 
-//       // Get two elements by right in the two lists
-//       // The interaction of this observable with the next one is
-//       // complex to time, but in the end it works. Combined together
-//       // two elements on both sides will be get
+  })
 
-//       rxo.concatMap((x: any) => {
-
-//         expect(x, "lrange$ over t")
-//         .to.be.deep.equal([ "A" ]);
-
-//         return q.rget$([ "t", "q" ], 2);
-
-//       }),
-
-//       // Get one element by left. Combined with the last Observable
-//       // running twice, this will also be run twice.
-//       // The result of the previous rget$ will be cached
-
-//       rxo.concatMap((x: any) => {
-
-//         popResults.push(x);
-
-//         return q.lget$("q", 1);
-
-//       }),
-
-//       // Check the status of the list
-//       // The result of the last lget$ will be cached
-
-//       rxo.concatMap((x: any) => {
-
-//         popResults.push(x);
-
-//         return r.lrange$("q", 0, 100);
-
-//       }),
-
-//       // This is the real last code to be executed when the main
-//       // Observable chain analysis is completed in the subscribe block
-
-//       rxo.finalize(() => {
-
-//         r.flushall$().subscribe(
-
-//           (x: any) => {
-
-//             expect(x, "Final flushall$").to.be.equal("OK");
-
-//             // Close all and exit
-
-//             r.close();
-
-//             q.close();
-
-//             done();
-
-//           }
-
-//         )
-
-//       })
-
-//     )
-//     .subscribe(
-
-//       (x: any) => {
-
-//         // Results of the last lrange$ reach here to be cached
-
-//         ranges.push(x);
-
-//       },
-
-//       (error: any) => {
-
-//         // Error catching
-
-//         r.close();
-
-//         q.close();
-
-//         done(error);
-
-//       },
-
-//       () => {
-
-//         // This is the complete of the main sequence, where cached
-//         // results are analyzed. Remember that the cleanup will be
-//         // performed in the rxo.finalize.
-
-//         expect(popResults, "popResults final analysis")
-//         .to.be.deep.equal([
-//           [ 't', 'A' ],
-//           [ 'q', '40' ],
-//           [ 'q', '5' ],
-//           [ 'q', '30' ]
-//         ]);
-
-//         expect(ranges, "ranges final analysis")
-//         .to.be.deep.equal([
-//           [ '30', '20', '10', '0', '1', '2', '3', '4' ],
-//           [ '20', '10', '0', '1', '2', '3', '4' ]
-//         ]);
-
-//       }
-
-//     )
-
-//   });
-
-// })
+})

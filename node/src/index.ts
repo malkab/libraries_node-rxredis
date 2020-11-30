@@ -5,3 +5,5 @@ export * from "./core/rxredisqueue";
 export * from "./core/rxredishashds";
 
 export * from "./core/iredisinfo";
+
+export * from "./core/iredismessageobject";

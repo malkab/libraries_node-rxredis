@@ -4,13 +4,12 @@ import * as rx from "rxjs";
 
 import * as rxo from "rxjs/operators";
 
-// Proper testing must be done with Mocha
-
 console.log(`
 
 ---------------------------
 
-Quick Test
+Queue test, run independently to not interfere with Mocha. Launch with
+yarn queue-test
 
 ---------------------------
 

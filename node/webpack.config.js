@@ -5,6 +5,7 @@ module.exports = {
   entry: {
     mocha: "./test/main.test.ts",
     quicktest: "./test/00_quick_test.ts",
+    queuetest: "./test/queue_test.ts",
     index: "./src/index.ts"
   },
   mode: "development",
