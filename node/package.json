@@ -1,6 +1,6 @@
 {
   "name": "@malkab/rxredis",
-  "version": "2.3.3",
+  "version": "2.3.5",
   "description": "A RxJS Redis interface.",
   "scope": "@malkab",
   "author": {
@@ -43,27 +43,27 @@
   },
   "devDependencies": {
     "@types/chai": "^4.2.14",
+    "@types/lodash": "^4.14.165",
     "@types/mocha": "^7.0.0",
     "@types/node": "^14.14.10",
+    "@types/redis": "^2.8.28",
     "@types/webpack-env": "^1.15.3",
     "chai": "^4.2.0",
     "clean-webpack-plugin": "^3.0.0",
-    "ts-node": "^9.0.0",
     "mocha": "^7.2.0",
     "nodemon": "^2.0.6",
     "npm-run-all": "^4.1.5",
     "terser": "^5.5.1",
     "terser-webpack-plugin": "^4.2.3",
     "ts-loader": "^8.0.11",
+    "ts-node": "^9.0.0",
     "tslint": "^6.1.3",
     "typedoc": "^0.19.2",
     "typescript": "^4.1.2",
     "webpack": "^4.44.2",
     "webpack-cli": "^4.2.0",
     "webpack-filter-warnings-plugin": "^1.2.1",
-    "webpack-node-externals": "^2.5.2",
-    "@types/redis": "^2.8.28",
-    "@types/lodash": "^4.14.165"
+    "webpack-node-externals": "^2.5.2"
   },
   "dependencies": {
     "@malkab/ts-utils": "^4.1.10",

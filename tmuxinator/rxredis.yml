@@ -4,19 +4,19 @@ root: /home/git/malkab-libraries-node/rxredis
 windows:
   - node-dev: >
       cd docker ;
-      . mlkcontext common ;
       sleep 4 ;
+      . mlkcontext common ;
       clear ;
       ./010_docker_node_run_interactive.sh
   - redis-cli: >
       cd docker ;
-      . mlkcontext common ;
       sleep 8 ;
+      . mlkcontext common ;
       clear ;
       ./020_docker_redis_cli.sh
   - redis: >
       cd docker ;
-      . mlkcontext common ;
       sleep 0.5 ;
+      . mlkcontext common ;
       clear ;
       ./005_docker_redis_run.sh

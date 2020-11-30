@@ -1024,17 +1024,6 @@ export class RxRedis {
 
   /**
    *
-   * Returns a RxRedisQueue taking connection parameters of this RxRedis.
-   *
-   */
-  public getRxRedisQueue(): RxRedisQueue {
-
-    return new RxRedisQueue(this);
-
-  }
-
-  /**
-   *
    * Returns a RxRedisChannelListener taking connection parameters of
    * this RxRedis.
    *
