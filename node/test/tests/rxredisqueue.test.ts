@@ -147,7 +147,7 @@ describe("Create a queue and drop some messages", function() {
       (o: IRedisInfo) => expect(o, "Messages in queue 'q'")
         .to.be.undefined,
 
-      (o: Error) => expect(o.message).to.be.equal("RxRedis error: error brpop at queues q with timeout 0: AbortError: BLPOP can\'t be processed. The connection is already closed.")
+      (o: Error) => expect(o.message).to.be.equal("RxRedis loop$: the connection is already closed, terminating loop")
 
     ],
 

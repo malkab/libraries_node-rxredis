@@ -396,13 +396,13 @@ export class RxRedisQueue {
 
           (e: Error) => {
 
-            x.error(e);
-
             if (e.message.split(":")[3] === " BLPOP can't be processed. The connection is already closed.") {
 
-              x.error(e);
+              x.error(new Error("RxRedis loop$: the connection is already closed, terminating loop"));
 
             } else {
+
+              x.next(new Error(`RxRedis loop$: unexpected error: ${e.message}`));
 
               loop({
                 redis: redis,
