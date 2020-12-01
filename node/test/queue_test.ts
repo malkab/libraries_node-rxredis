@@ -15,7 +15,6 @@ yarn queue-test
 
 `);
 
-
 /**
  *
  * The Redis.
@@ -66,69 +65,84 @@ export class RedisMessageObjectExample implements IRedisMessageObject {
   }
 
   // Here the class does something intense
-  public somethingIntense(): number {
+  public somethingIntense$(): rx.Observable<number> {
 
-    for(let i = 0 ; i < 500000000 ; i++) {
+    if (this.a === 250) return rx.throwError(new Error("error at RedisMessageObjectExampler"));
 
-      if(i % 100000000 === 0) console.log(`Task ${this.a}: ${i}`)
+    console.log("RedisMessageObjectExample doing something intense");
 
-    }
-
-    return this.a;
+    return rx.of(this.a).pipe(rxo.delay(500))
 
   }
 
 }
 
-// Will check some messages, close the connection, and fail
-RxRedisQueue.loop$({
+// // Will check some messages, close the connection, and fail
+// RxRedisQueue.loop$({
+//   redis: bRedis,
+//   keys: "q",
+//   constructorFunc: (params: any) => new RedisMessageObjectExample(params)
+// }).pipe(
+
+//   rxo.concatMap((o: any) => {
+
+//     return o.object.somethingIntense$();
+
+//   })
+
+// ).subscribe(
+
+//   (o: any) => console.log("D: next", o),
+
+//   (e: Error) => console.log("D: error", e.message),
+
+//   () => console.log("D: complete")
+
+// )
+
+RxRedisQueue.lget$({
   redis: bRedis,
-  keys: "q",
-  constructorFunc: (params: any) => new RedisMessageObjectExample(params)
+  keys: "q"
 }).pipe(
 
-  rxo.map((o: any) => {
+  rxo.concatMap((o: any) => {
 
-    // The object with ID 2 will close the connection and the loop
-    if (o.object.a === 2) {
+    return new RedisMessageObjectExample(JSON.parse(o[1])).somethingIntense$()
 
-      bRedis.close();
-      return -1;
+  }),
 
-    } else {
+  rxo.repeat()
 
-      return (<RedisMessageObjectExample>o.object).somethingIntense();
-
-    }
-
-  })
-
-)
-.subscribe(
+).subscribe(
 
   (o: any) => console.log("D: next", o),
 
-  (e: Error) => console.log("D: error", e),
+  (e: Error) => { console.log("D: error", e.message); process.exit(-1); },
 
   () => console.log("D: complete")
 
 )
 
-console.log("D: jjd");
 
 /**
  *
  * Post messages.
  *
  */
-RxRedisQueue.set$(redis, "q",
-  new RedisMessageObjectExample({ a: 0, b: "0" })).subscribe();
+rx.timer(10, 10)
+.subscribe(
 
-RxRedisQueue.set$(redis, "q",
-  new RedisMessageObjectExample({ a: 1, b: "1" })).subscribe();
+  (o: number) => RxRedisQueue.set$(redis, "q",
+    new RedisMessageObjectExample({ a: o, b: `${o}` })).subscribe()
 
-RxRedisQueue.set$(redis, "q",
-  new RedisMessageObjectExample({ a: 2, b: "2" })).subscribe();
+)
 
-RxRedisQueue.set$(redis, "q",
-  new RedisMessageObjectExample({ a: 3, b: "3" })).subscribe();
+// RxRedisQueue.set$(redis, "q",
+//   new RedisMessageObjectExample({ a: 1, b: "1" })).subscribe();
+
+// RxRedisQueue.set$(redis, "q",
+//   new RedisMessageObjectExample({ a: 2, b: "2" })).subscribe();
+
+// RxRedisQueue.set$(redis, "q",
+//   new RedisMessageObjectExample({ a: 3, b: "3" })).subscribe();
+// }

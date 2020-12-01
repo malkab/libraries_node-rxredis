@@ -151,14 +151,15 @@ export class RxRedisQueue {
    * object will be called for serialization at the queue.
    *
    * @returns
-   * An observable with the result of the **rpush** operation.
+   * An observable with the result of the **rpush** operation, that is, the
+   * number of elements in the queue.
    *
    */
   public static set$(
     redis: RxRedis,
     queue: string,
     message: IRedisMessageObject
-  ): rx.Observable<any> {
+  ): rx.Observable<number> {
 
     // Serialize the object
     return message.serial$()
@@ -265,8 +266,8 @@ export class RxRedisQueue {
     }: {
       redis: RxRedis;
       keys: string | string[];
-      buffer: number;
-      timeout: number;
+      buffer?: number;
+      timeout?: number;
   }): rx.Observable<any> {
 
     const k: string[] = Array.isArray(keys) ? keys : [ keys ];
@@ -346,89 +347,116 @@ export class RxRedisQueue {
       timeout?: number;
   }): rx.Observable<{ queue: string; object: any }[] | { queue: string; object: any }> {
 
-    return new rx.Observable<{ queue: string; object: any }[] | { queue: string; object: any }>((x: any) => {
+    return RxRedisQueue.lget$({
+      redis: redis,
+      keys: keys,
+      buffer: buffer,
+      timeout: timeout
+    }).pipe(
 
-      const loop = ({
-          redis,
-          keys,
-          constructorFunc,
-          buffer = 1,
-          timeout = 0
-        }: {
-          redis: RxRedis;
-          keys: string | string[];
-          constructorFunc: (params: any) => any;
-          buffer?: number;
-          timeout?: number;
-      }) => {
+      rxo.map((o: any) => {
 
-        RxRedisQueue.lget$({
-          redis: redis,
-          keys: keys,
-          buffer: buffer,
-          timeout: timeout
-        })
-        .subscribe(
+        // Check if o is a multi response produced by numberOfItems
+        const om: any[] = (Array.isArray(o[0])) ? o : [ o ];
 
-          (o: any) => {
+        const out: { queue: string; object: any }[] = [];
 
-            // Check if o is a multi response produced by numberOfItems
-            const om: any[] = (Array.isArray(o[0])) ? o : [ o ];
+        om.map((i: any) => out.push({
+          queue: i[0],
+          object: constructorFunc(JSON.parse(i[1]))
+        }))
 
-            const out: { queue: string; object: any }[] = [];
+        return out.length === 1 ? (out[0]) : out;
 
-            om.map((i: any) => out.push({
-              queue: i[0],
-              object: constructorFunc(JSON.parse(i[1]))
-            }))
+      }),
 
-            out.length === 1 ? x.next(out[0]) : x.next(out);
+      rxo.repeat()
 
-            loop({
-              redis: redis,
-              keys: keys,
-              constructorFunc,
-              buffer: buffer,
-              timeout: timeout
-            });
+    )
 
-          },
+  //   return new rx.Observable<{ queue: string; object: any }[] | { queue: string; object: any }>((x: any) => {
 
-          (e: Error) => {
+  //     const loop = ({
+  //         redis,
+  //         keys,
+  //         constructorFunc,
+  //         buffer = 1,
+  //         timeout = 0
+  //       }: {
+  //         redis: RxRedis;
+  //         keys: string | string[];
+  //         constructorFunc: (params: any) => any;
+  //         buffer?: number;
+  //         timeout?: number;
+  //     }) => {
 
-            if (e.message.split(":")[3] === " BLPOP can't be processed. The connection is already closed.") {
+  //       RxRedisQueue.lget$({
+  //         redis: redis,
+  //         keys: keys,
+  //         buffer: buffer,
+  //         timeout: timeout
+  //       })
+  //       .subscribe(
 
-              x.error(new Error("RxRedis loop$: the connection is already closed, terminating loop"));
+  //         (o: any) => {
 
-            } else {
+  //           // Check if o is a multi response produced by numberOfItems
+  //           const om: any[] = (Array.isArray(o[0])) ? o : [ o ];
 
-              x.next(new Error(`RxRedis loop$: unexpected error: ${e.message}`));
+  //           const out: { queue: string; object: any }[] = [];
 
-              loop({
-                redis: redis,
-                keys: keys,
-                constructorFunc,
-                buffer: buffer,
-                timeout: timeout
-              });
+  //           om.map((i: any) => out.push({
+  //             queue: i[0],
+  //             object: constructorFunc(JSON.parse(i[1]))
+  //           }))
 
-            }
+  //           out.length === 1 ? x.next(out[0]) : x.next(out);
 
-          }
+  //           loop({
+  //             redis: redis,
+  //             keys: keys,
+  //             constructorFunc,
+  //             buffer: buffer,
+  //             timeout: timeout
+  //           });
 
-        )
+  //         },
 
-      }
+  //         (e: Error) => {
 
-      loop({
-        redis: redis,
-        keys: keys,
-        constructorFunc,
-        buffer: buffer,
-        timeout: timeout
-      });
+  //           if (e.message.split(":")[3] === " BLPOP can't be processed. The connection is already closed.") {
 
-    })
+  //             x.error(new Error("RxRedis loop$: the connection is already closed, terminating loop"));
+
+  //           } else {
+
+  //             x.next(new Error(`RxRedis loop$: unexpected error: ${e.message}`));
+
+  //             loop({
+  //               redis: redis,
+  //               keys: keys,
+  //               constructorFunc,
+  //               buffer: buffer,
+  //               timeout: timeout
+  //             });
+
+  //           }
+
+  //         }
+
+  //       )
+
+  //     }
+
+  //     loop({
+  //       redis: redis,
+  //       keys: keys,
+  //       constructorFunc,
+  //       buffer: buffer,
+  //       timeout: timeout
+  //     });
+
+  //   })
 
   }
 
