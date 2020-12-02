@@ -1,4 +1,4 @@
-import { RxRedis, RxRedisQueue, IRedisMessageObject } from "../src/index";
+import { RxRedis, RxRedisQueue } from "../src/index";
 
 import * as rx from "rxjs";
 
@@ -30,7 +30,7 @@ export const bRedis: RxRedis = redis.blockingClone();
  * A class prepared to be store at Redis in RxRedisQueue queues, serialized.
  *
  */
-export class RedisMessageObjectExample implements IRedisMessageObject {
+export class RedisMessageObjectExample {
 
   private _a: number;
   get a(): number { return this._a }
@@ -51,14 +51,7 @@ export class RedisMessageObjectExample implements IRedisMessageObject {
 
   }
 
-  public serial$(): rx.Observable<any> {
-
-    return rx.of({
-      a: this._a,
-      b: this._b
-    })
-
-  }
+  public serial(): any { return { a: this._a, b: this._b } }
 
   /**
    *
@@ -149,7 +142,10 @@ RxRedisQueue.get$({
 
   /**
    *
-   * Errors from the get$ loop will be processed here, terminating the loop. To restart the loop, another
+   * Errors from the get$ loop will be processed here, terminating the loop. To
+   * restart the loop, another method should be implemented, external to the
+   * observable chain.
+   *
    */
   (e: Error) => console.log("D: error", e.message),
 
@@ -168,10 +164,10 @@ rx.timer(0, 100)
   (o: number ) => rx.zip(
 
     RxRedisQueue.set$(redis, "q0",
-      new RedisMessageObjectExample({ a: o, b: `${o}` })),
+      JSON.stringify(new RedisMessageObjectExample({ a: o, b: `${o}` }).serial())),
 
     RxRedisQueue.set$(redis, "q1",
-      new RedisMessageObjectExample({ a: o, b: `${o}` }))
+      JSON.stringify(new RedisMessageObjectExample({ a: o, b: `${o}` }).serial()))
 
   ).subscribe()
 

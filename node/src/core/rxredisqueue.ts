@@ -4,8 +4,6 @@ import * as rx from "rxjs";
 
 import * as rxo from "rxjs/operators";
 
-import { IRedisMessageObject } from './iredismessageobject';
-
 /**
  *
  * This class manages a potentially blocking BRPOP command, used to implement
@@ -158,24 +156,10 @@ export class RxRedisQueue {
   public static set$(
     redis: RxRedis,
     queue: string,
-    message: IRedisMessageObject
+    message: any
   ): rx.Observable<number> {
 
-    // Serialize the object
-    return message.serial$()
-    .pipe(
-
-      // Catch serialization errors
-      rxo.catchError((e: Error) => {
-
-        throw new Error(`error serializing object at RxRedisQueue set: ${e}`);
-
-      }),
-
-      // Push the serialization
-      rxo.concatMap((o: any) => redis.rpush$(queue, JSON.stringify(o)))
-
-    )
+    return redis.rpush$(queue, message);
 
   }
 
