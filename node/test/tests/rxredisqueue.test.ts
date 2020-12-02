@@ -2,6 +2,8 @@ import "mocha";
 
 import { expect } from "chai";
 
+import * as rx from "rxjs";
+
 import * as rxo from "rxjs/operators";
 
 import { IRedisInfo, RxRedisQueue } from "../../src/index";
@@ -105,20 +107,13 @@ describe("Create a queue and drop some messages", function() {
         constructorFunc: (params: any) => new RedisMessageObjectExample(params)
       }).pipe(
 
-        rxo.map((o: any) => {
+        rxo.concatMap((o: any) => {
 
-          // The object with ID 2 will close the connection and the loop
-          if (o.object.a === 2) {
+          return o.object.somethingIntense$();
 
-            bRedis.close();
+        }),
 
-          } else {
-
-            return o.object.somethingIntense();
-
-          }
-
-        })
+        rxo.retry()
 
       )
 
@@ -126,64 +121,64 @@ describe("Create a queue and drop some messages", function() {
 
     assertions: [
 
-      (o: IRedisInfo) => expect(o, "Messages in queue 'q'")
+      (o: IRedisInfo) => expect(o, "Set 1st message in queue 'q'")
         .to.be.equal(1),
 
-      (o: IRedisInfo) => expect(o, "Messages in queue 'q'")
+      (o: IRedisInfo) => expect(o, "Set 2nd message in queue 'q'")
         .to.be.equal(2),
 
-      (o: IRedisInfo) => expect(o, "Messages in queue 'q'")
+      (o: IRedisInfo) => expect(o, "Set 3rd message in queue 'q'")
         .to.be.equal(3),
 
-      (o: IRedisInfo) => expect(o, "Messages in queue 'q'")
+      (o: IRedisInfo) => expect(o, "Set 4th message in queue 'q'")
         .to.be.equal(4),
 
-      (o: IRedisInfo) => expect(o, "Messages in queue 'q'")
+      (o: any) => expect(o, "Messages in queue 'q'")
         .to.be.equal(0),
 
-      (o: IRedisInfo) => expect(o, "Messages in queue 'q'")
-        .to.be.equal(1),
+      // (o: IRedisInfo) => expect(o, "Messages in queue 'q'")
+      //   .to.be.equal(1),
 
-      (o: IRedisInfo) => expect(o, "Messages in queue 'q'")
-        .to.be.undefined,
+      // (o: IRedisInfo) => expect(o, "Messages in queue 'q'")
+      //   .to.be.undefined,
 
-      (o: Error) => expect(o.message).to.be.equal("RxRedis loop$: the connection is already closed, terminating loop")
+      // (o: Error) => expect(o.message).to.be.equal("RxRedis loop$: the connection is already closed, terminating loop")
 
     ],
 
-    verbose: false
+    verbose: true
 
   })
 
 })
 
-/**
- *
- * Final clients.
- *
- */
-describe("Final clients", function() {
+// /**
+//  *
+//  * Final clients.
+//  *
+//  */
+// describe("Final clients", function() {
 
-  rxMochaTests({
+//   rxMochaTests({
 
-    testCaseName: "Final clients",
+//     testCaseName: "Final clients",
 
-    observables: [
+//     observables: [
 
-      redis.info()
+//       redis.info()
 
-    ],
+//     ],
 
-    assertions: [
+//     assertions: [
 
-      (o: IRedisInfo) => expect(o.connected_clients,
-        "Final clients (including the CLI client of tmuxinator")
-        .to.be.equal(2)
+//       (o: IRedisInfo) => expect(o.connected_clients,
+//         "Final clients (including the CLI client of tmuxinator")
+//         .to.be.equal(2)
 
-    ],
+//     ],
 
-    verbose: false
+//     verbose: false
 
-  })
+//   })
 
-})
+// })

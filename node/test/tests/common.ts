@@ -2,6 +2,8 @@ import { RxRedis, IRedisMessageObject } from "../../src/index";
 
 import * as rx from "rxjs";
 
+import * as rxo from "rxjs/operators";
+
 /**
  *
  * The Redis.
@@ -52,15 +54,13 @@ export class RedisMessageObjectExample implements IRedisMessageObject {
   }
 
   // Here the class does something intense
-  public somethingIntense(): number {
+  public somethingIntense$(): rx.Observable<number> {
 
-    for(let i = 0 ; i < 500000000 ; i++) {
+    if (this.a === 2) return rx.throwError(new Error("error at RedisMessageObjectExampler"));
 
-      if(i % 100000000 === 0) console.log(`Task ${this.a}: ${i}`)
+    console.log("RedisMessageObjectExample doing something intense");
 
-    }
-
-    return this.a;
+    return rx.of(this.a).pipe(rxo.delay(5000))
 
   }
 

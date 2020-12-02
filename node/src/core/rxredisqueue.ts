@@ -138,7 +138,7 @@ export class RxRedisQueue {
 
   /**
    *
-   * Perform a standard set (from the right), to use in conjuntion with loop$.
+   * Perform a standard set (from the right), to use in conjuntion with get$.
    *
    * @param redis
    * The Redis connection to sent the message to.
@@ -151,14 +151,15 @@ export class RxRedisQueue {
    * object will be called for serialization at the queue.
    *
    * @returns
-   * An observable with the result of the **rpush** operation.
+   * An observable with the result of the **rpush** operation, that is, the
+   * number of elements in the queue.
    *
    */
   public static set$(
     redis: RxRedis,
     queue: string,
     message: IRedisMessageObject
-  ): rx.Observable<any> {
+  ): rx.Observable<number> {
 
     // Serialize the object
     return message.serial$()
@@ -265,8 +266,8 @@ export class RxRedisQueue {
     }: {
       redis: RxRedis;
       keys: string | string[];
-      buffer: number;
-      timeout: number;
+      buffer?: number;
+      timeout?: number;
   }): rx.Observable<any> {
 
     const k: string[] = Array.isArray(keys) ? keys : [ keys ];
@@ -290,15 +291,9 @@ export class RxRedisQueue {
 
   /**
    *
-   * This method starts a never ending loop of message retrieving on the given
-   * key list. Returns an observable that must be subscribed to process
-   * messages. It uses a blocking, dedicated Redis connection to block the
-   * retrieval of messages. The only way to stop the loop is to close the
-   * blocking Redis connection, that will output an error in the observable
-   * returned by this method. Use in conjunction with **set$** to push messages
-   * to the queue. The type **T** must inherit the interface
-   * **IRedisMessageObject**, and this method will care about the instantiation
-   * of serialized messages on the object class given by the **object** param.
+   * get$: gets a message from a queue, to use in tandem with set$. This method
+   * is generally used for creating never-ending loops of message retrieval from
+   * Redis blocking queues. Check the example pattern at **queue_test.ts**.
    *
    * @param redis
    * A blocking Redis connection to wait for messages on. This connection must
@@ -308,11 +303,6 @@ export class RxRedisQueue {
    * @param keys
    * Set of keys, in order, to look for messages. Can be a single one or an
    * array.
-   *
-   * @param constructorFunc
-   * A function that returns an instance of the correct object when a
-   * serialization is retrieved from the RedisMessage. This is the place to run
-   * factories for polymorphic objects.
    *
    * @param buffer
    * Optional, defaults to 1. Number of messages to retrieve as a set.
@@ -325,109 +315,30 @@ export class RxRedisQueue {
    * structure:
    *
    * ```TypeScript
-   * { queue: string; object: T }
+   * { queue: string; object: any }
    * ```
    *
    * where **queue** is the queue the message was found on and **object** the
-   * serialized message object.
+   * message object.
    *
    */
-  public static loop$({
+  public static get$({
       redis,
       keys,
-      constructorFunc,
       buffer = 1,
       timeout = 0
     }: {
       redis: RxRedis;
       keys: string | string[];
-      constructorFunc: (params: any) => any;
       buffer?: number;
       timeout?: number;
-  }): rx.Observable<{ queue: string; object: any }[] | { queue: string; object: any }> {
+  }): rx.Observable<{ queue: string; object: any }[]> {
 
-    return new rx.Observable<{ queue: string; object: any }[] | { queue: string; object: any }>((x: any) => {
-
-      const loop = ({
-          redis,
-          keys,
-          constructorFunc,
-          buffer = 1,
-          timeout = 0
-        }: {
-          redis: RxRedis;
-          keys: string | string[];
-          constructorFunc: (params: any) => any;
-          buffer?: number;
-          timeout?: number;
-      }) => {
-
-        RxRedisQueue.lget$({
-          redis: redis,
-          keys: keys,
-          buffer: buffer,
-          timeout: timeout
-        })
-        .subscribe(
-
-          (o: any) => {
-
-            // Check if o is a multi response produced by numberOfItems
-            const om: any[] = (Array.isArray(o[0])) ? o : [ o ];
-
-            const out: { queue: string; object: any }[] = [];
-
-            om.map((i: any) => out.push({
-              queue: i[0],
-              object: constructorFunc(JSON.parse(i[1]))
-            }))
-
-            out.length === 1 ? x.next(out[0]) : x.next(out);
-
-            loop({
-              redis: redis,
-              keys: keys,
-              constructorFunc,
-              buffer: buffer,
-              timeout: timeout
-            });
-
-          },
-
-          (e: Error) => {
-
-            if (e.message.split(":")[3] === " BLPOP can't be processed. The connection is already closed.") {
-
-              x.error(new Error("RxRedis loop$: the connection is already closed, terminating loop"));
-
-            } else {
-
-              x.next(new Error(`RxRedis loop$: unexpected error: ${e.message}`));
-
-              loop({
-                redis: redis,
-                keys: keys,
-                constructorFunc,
-                buffer: buffer,
-                timeout: timeout
-              });
-
-            }
-
-          }
-
-        )
-
-      }
-
-      loop({
-        redis: redis,
-        keys: keys,
-        constructorFunc,
-        buffer: buffer,
-        timeout: timeout
-      });
-
+    return RxRedisQueue.lget$({
+      redis: redis,
+      keys: keys,
+      buffer: buffer,
+      timeout: timeout
     })
 
   }
