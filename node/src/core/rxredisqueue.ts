@@ -139,7 +139,8 @@ export class RxRedisQueue {
    * Perform a standard set (from the right), to use in conjuntion with get$.
    *
    * @param redis
-   * The Redis connection to sent the message to.
+   * The Redis connection to sent the message to. This connection is not
+   * blocking, so it don't need to be dedicated.
    *
    * @param queue
    * The name of the queue to send the message to.
