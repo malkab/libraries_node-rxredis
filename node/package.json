@@ -1,6 +1,6 @@
 {
   "name": "@malkab/rxredis",
-  "version": "2.3.9",
+  "version": "2.3.11",
   "description": "A RxJS Redis interface.",
   "scope": "@malkab",
   "author": {
@@ -38,9 +38,6 @@
     "service:watch:queue-test:server": "nodemon --inspect=0.0.0.0:9329 \"./build/queuetest.js\" --watch \"./build/queuetest.js\"",
     "service:watch:mocha:server": "nodemon --ext js --watch ./build/ --exec 'mocha --timeout 20000 ./build/mocha.js || true'"
   },
-  "engines": {
-    "node": "^12.0.0"
-  },
   "devDependencies": {
     "@types/chai": "^4.2.14",
     "@types/lodash": "^4.14.165",
@@ -66,8 +63,8 @@
     "webpack-node-externals": "^2.5.2"
   },
   "dependencies": {
-    "@malkab/ts-utils": "^4.1.11",
+    "@malkab/ts-utils": "^8.0.2",
     "redis": "^3.0.2",
-    "rxjs": "^6.5.2"
+    "rxjs": "^7.0.0"
   }
 }

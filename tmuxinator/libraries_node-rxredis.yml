@@ -1,0 +1,16 @@
+name: libraries_node-rxredis
+root: /home/git/libraries_node/libraries_node-rxredis
+
+windows:
+  - node-dev: >
+      cd docker ;
+      sleep .5 ;
+      clear
+  - redis-cli: >
+      cd docker ;
+      sleep .5 ;
+      clear
+  - redis: >
+      cd docker ;
+      sleep 0.5 ;
+      clear
