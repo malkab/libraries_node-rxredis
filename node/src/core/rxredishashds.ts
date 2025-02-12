@@ -2,22 +2,22 @@ import * as rxredis from "./rxredis";
 
 import * as rx from "rxjs";
 
-import * as utils from "@malkab/ts-utils";
+// import * as utils from "@malkab/ts-utils";
 
 
 
 /**
- * 
+ *
  * This class manages a datastore of .
- * 
+ *
  */
 
 export class RxRedisHashDs {
 
     /**
-     * 
+     *
      * The Redis client.
-     * 
+     *
      */
 
     private _client: rxredis.RxRedis;
@@ -25,12 +25,12 @@ export class RxRedisHashDs {
 
 
     /**
-     * 
+     *
      * The name of the collection.
-     * 
-     * @param collectionName 
-     * @param rxRedis 
-     * 
+     *
+     * @param collectionName
+     * @param rxRedis
+     *
      */
 
     private _collectionName: string;
@@ -42,7 +42,7 @@ export class RxRedisHashDs {
      * Constructor.
      *
      */
-    
+
     constructor(collectionName: string, rxRedis: rxredis.RxRedis) {
 
         this._client = rxRedis;
@@ -54,9 +54,9 @@ export class RxRedisHashDs {
 
 
     /**
-     * 
-     * Gets a hash. 
-     * 
+     *
+     * Gets a hash.
+     *
      */
 
     public hgetall$(hash: string): rx.Observable<any> {
@@ -68,9 +68,9 @@ export class RxRedisHashDs {
 
 
     /**
-     * 
+     *
      * Sets a hash from a complex object.
-     * 
+     *
      */
 
     public hsetall$(hash: string, object: any): rx.Observable<any> {
@@ -91,9 +91,9 @@ export class RxRedisHashDs {
 
 
     /**
-     * 
+     *
      * Increment an element by 1.
-     * 
+     *
      */
 
     public hincr$(hash: string, key: string): rx.Observable<number> {
@@ -105,9 +105,9 @@ export class RxRedisHashDs {
 
 
     /**
-     * 
+     *
      * Increment an element by 1.
-     * 
+     *
      */
 
     public hincrby$(hash: string, key: string, amount: number): rx.Observable<number> {
@@ -119,9 +119,9 @@ export class RxRedisHashDs {
 
 
     /**
-     * 
+     *
      * Deletes a key.
-     * 
+     *
      */
 
     public hdel$(hash: string, key: string): rx.Observable<number> {
@@ -131,9 +131,9 @@ export class RxRedisHashDs {
     }
 
     /**
-     * 
+     *
      * Sets a key.
-     * 
+     *
      */
 
     public hset$(hash: string, key: string, value: any): rx.Observable<any> {
@@ -145,9 +145,9 @@ export class RxRedisHashDs {
 
 
     /**
-     * 
+     *
      * Get several hashs in the collection.
-     * 
+     *
      */
 
     public hmgetall$(pattern: string): rx.Observable<any[]> {
@@ -170,7 +170,7 @@ export class RxRedisHashDs {
                     .subscribe(
 
                         (values) => {
-                            
+
                             o.next(values);
 
                             o.complete();
@@ -186,17 +186,17 @@ export class RxRedisHashDs {
             );
 
         });
-         
+
     }
 
 
 
     /**
-     * 
+     *
      * Close.
-     * 
+     *
      * **BEWARE:** close only standalone RxRedisHashDs.
-     * 
+     *
      */
 
     public close(): void {
@@ -208,9 +208,9 @@ export class RxRedisHashDs {
 
 
     /**
-     * 
+     *
      * Gets the matching Redis hash key.
-     * 
+     *
      */
 
     private _redisHashKey(hash: string): string {

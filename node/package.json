@@ -1,8 +1,7 @@
 {
-  "name": "@malkab/rxredis",
+  "name": "rxredis",
   "version": "2.3.11",
   "description": "A RxJS Redis interface.",
-  "scope": "@malkab",
   "author": {
     "name": "Juan Pedro Perez Alcantara",
     "email": "jp.perez.alcantara@gmail.com",
@@ -10,6 +9,9 @@
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "keywords": [
     "Redis",
     "RxJS"
@@ -63,7 +65,7 @@
     "webpack-node-externals": "^2.5.2"
   },
   "dependencies": {
-    "@malkab/ts-utils": "^8.0.2",
+    "@malkab/ts-utils": "file:./malkab-ts-utils-v8.0.2.tgz",
     "redis": "^3.0.2",
     "rxjs": "^7.0.0"
   }
