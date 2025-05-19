@@ -11,4 +11,5 @@ docker run -ti --rm \
     -v ~/.npmrc:/home/node/.npmrc:ro \
     --entrypoint /bin/bash \
     --workdir $(pwd)/../node/ \
+    --user node \
     malkab/nodejs-dev:16.13.2

@@ -43,7 +43,6 @@ module.exports = {
     minimizer: [new TerserPlugin({
       parallel: true,
       terserOptions: {
-        extractComments: true,
         mangle: {
           toplevel: true
         },
@@ -53,10 +52,6 @@ module.exports = {
       }
     })]
 
-  },
-
-  node: {
-    fs: "empty"
   },
 
   resolve: {
