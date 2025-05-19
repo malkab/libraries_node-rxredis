@@ -1,7 +1,8 @@
 {
-  "name": "rxredis",
-  "version": "2.3.11",
+  "name": "@sunntics/rxredis",
+  "version": "2.3.13",
   "description": "A RxJS Redis interface.",
+  "scope": "sunntics",
   "author": {
     "name": "Juan Pedro Perez Alcantara",
     "email": "jp.perez.alcantara@gmail.com",
@@ -65,8 +66,9 @@
     "webpack-node-externals": "^2.5.2"
   },
   "dependencies": {
-    "@malkab/ts-utils": "file:./malkab-ts-utils-v8.0.2.tgz",
+    "@sunntics/ts-utils": "8.0.4",
     "redis": "^3.0.2",
     "rxjs": "^7.0.0"
-  }
+  },
+  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
 }

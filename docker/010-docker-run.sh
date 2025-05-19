@@ -8,6 +8,7 @@ docker run -ti --rm \
     --name=rxredis-node-dev \
     -v $(pwd):/ext_src \
     -v $(pwd)/../node/:$(pwd)/../node/ \
+    -v ~/.npmrc:/home/node/.npmrc:ro \
     --entrypoint /bin/bash \
     --workdir $(pwd)/../node/ \
     malkab/nodejs-dev:16.13.2
