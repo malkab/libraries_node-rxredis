@@ -1,3 +1,0 @@
-# RxRedis
-
-Main front page.

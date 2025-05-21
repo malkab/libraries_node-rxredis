@@ -1,6 +1,6 @@
 {
   "name": "@sunntics/rxredis",
-  "version": "2.3.14",
+  "version": "2.3.15",
   "description": "A RxJS Redis interface.",
   "scope": "sunntics",
   "author": {
@@ -25,21 +25,18 @@
   },
   "private": false,
   "scripts": {
-    "package-json-version": "echo 2020-10-22",
-    "clean": "rm -Rf build ; rm -Rf dist",
-    "quick-test": "npm-run-all --parallel service:watch:quick-test:server service:build",
-    "queue-test": "npm-run-all --parallel service:watch:queue-test:server service:build",
-    "start": "npm-run-all --parallel service:watch:mocha:server service:build",
+    "build-prod": "NODE_ENV=production yarn build",
     "build": "yarn clean ; yarn service:build-lib",
-    "build-with-docs": "yarn clean ; yarn service:build-lib ; yarn build-docs ; rm -Rf docs ; cp -R typedoc/build/html docs",
-    "build-docs": "cd typedoc ; ./html ; cd ..",
-    "distribute-pack": "./node-pack/distribute-pack.sh",
-    "install-distributed-pack": "./node-pack/install-packages.sh",
+    "clean": "rm -Rf build ; rm -Rf dist",
+    "publish-prod": "yarn publish --patch --no-git-tag-version",
+    "queue-test": "npm-run-all --parallel service:watch:queue-test:server service:build",
+    "quick-test": "npm-run-all --parallel service:watch:quick-test:server service:build",
     "service:build-lib": "webpack --config webpack-production.config.js --progress",
     "service:build": "webpack --progress --watch",
-    "service:watch:quick-test:server": "nodemon --inspect=0.0.0.0:9329 \"./build/quicktest.js\" --watch \"./build/quicktest.js\"",
+    "service:watch:mocha:server": "nodemon --ext js --watch ./build/ --exec 'mocha --timeout 20000 ./build/mocha.js || true'",
     "service:watch:queue-test:server": "nodemon --inspect=0.0.0.0:9329 \"./build/queuetest.js\" --watch \"./build/queuetest.js\"",
-    "service:watch:mocha:server": "nodemon --ext js --watch ./build/ --exec 'mocha --timeout 20000 ./build/mocha.js || true'"
+    "service:watch:quick-test:server": "nodemon --inspect=0.0.0.0:9329 \"./build/quicktest.js\" --watch \"./build/quicktest.js\"",
+    "start": "npm-run-all --parallel service:watch:mocha:server service:build"
   },
   "devDependencies": {
     "@types/chai": "4.3.20",
@@ -65,7 +62,7 @@
     "webpack-node-externals": "3.0.0"
   },
   "dependencies": {
-    "@sunntics/ts-utils": "8.0.7",
+    "@sunntics/ts-utils": "8.0.9",
     "lodash": "4.17.21",
     "redis": "3.1.2",
     "rxjs": "7.8.1"
