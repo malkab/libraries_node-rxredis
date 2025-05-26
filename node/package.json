@@ -1,6 +1,6 @@
 {
   "name": "@sunntics/rxredis",
-  "version": "2.3.17",
+  "version": "2.3.18",
   "description": "A RxJS Redis interface.",
   "scope": "sunntics",
   "author": {
@@ -61,7 +61,7 @@
     "webpack-node-externals": "3.0.0"
   },
   "dependencies": {
-    "@sunntics/ts-utils": "8.0.11",
+    "@sunntics/ts-utils": "8.0.12",
     "lodash": "4.17.21",
     "redis": "3.1.2",
     "rxjs": "7.8.1"
