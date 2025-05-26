@@ -1,6 +1,6 @@
 {
   "name": "@sunntics/rxredis",
-  "version": "2.3.15",
+  "version": "2.3.16",
   "description": "A RxJS Redis interface.",
   "scope": "sunntics",
   "author": {
@@ -25,9 +25,10 @@
   },
   "private": false,
   "scripts": {
-    "build-prod": "NODE_ENV=production yarn build",
+    "build-prod": "yarn clean ; NODE_ENV=production yarn build",
     "build": "yarn clean ; yarn service:build-lib",
     "clean": "rm -Rf build ; rm -Rf dist",
+    "install_peer_dep": "npm install --no-save rxjs@7.8.1 redis@3.1.2 @sunntics/ts-utils@8.0.10",
     "publish-prod": "yarn publish --patch --no-git-tag-version",
     "queue-test": "npm-run-all --parallel service:watch:queue-test:server service:build",
     "quick-test": "npm-run-all --parallel service:watch:quick-test:server service:build",
@@ -47,6 +48,7 @@
     "@types/webpack-env": "1.18.8",
     "chai": "4.5.0",
     "clean-webpack-plugin": "3.0.0",
+    "eslint": "7.32.0",
     "mocha": "9.2.2",
     "nodemon": "2.0.22",
     "npm-run-all": "4.1.5",
@@ -54,16 +56,16 @@
     "terser-webpack-plugin": "5.3.14",
     "ts-loader": "9.5.2",
     "ts-node": "10.9.2",
-    "tslint": "6.1.3",
     "typescript": "5.7.2",
     "webpack": "5.99.8",
     "webpack-cli": "4.10.0",
-    "webpack-filter-warnings-plugin": "1.2.1",
     "webpack-node-externals": "3.0.0"
   },
   "dependencies": {
-    "@sunntics/ts-utils": "8.0.9",
-    "lodash": "4.17.21",
+    "lodash": "4.17.21"
+  },
+  "peerDependencies": {
+    "@sunntics/ts-utils": "8.0.10",
     "redis": "3.1.2",
     "rxjs": "7.8.1"
   },
